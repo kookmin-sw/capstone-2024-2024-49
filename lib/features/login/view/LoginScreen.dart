@@ -40,7 +40,7 @@ class _LoginPageState extends State<LoginScreen> {
     if (querySnapshot.docs.isEmpty) {
       // 일치하는 사용자가 없을 경우
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('일치하는 회원정보가 없습니다.'))
+          const SnackBar(content: Text('일치하는 회원정보가 없습니다.'))
       );
     } else {
       // Firestore 문서에서 User 객체 생성
@@ -66,7 +66,7 @@ class _LoginPageState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("로그인"),
+        title: const Text("로그인"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

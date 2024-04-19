@@ -1,6 +1,5 @@
 import 'package:luckymoon/data/Counsellor.dart';
 import 'package:luckymoon/features/board/cubit/board_cubit.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -46,7 +45,7 @@ class _BoardScreenState extends State<BoardScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('상담자 게시판'),
+        title: const Text('상담사 게시판'),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -61,7 +60,7 @@ class _BoardScreenState extends State<BoardScreen> {
             const Blank(0, 16),
             ListView.builder(
               shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
               itemCount: reviews.length,
               itemBuilder: (context, index) {
                 return ListTile(

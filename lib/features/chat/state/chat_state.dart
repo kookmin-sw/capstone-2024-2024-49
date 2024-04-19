@@ -4,5 +4,4 @@ class ChatState{
 
   late Counsellor counsellor;
 
-
 }

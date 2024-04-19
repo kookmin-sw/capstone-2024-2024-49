@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:luckymoon/data/Counsellor.dart';
-import '../../../data/Review.dart';
 import '../state/chat_state.dart';
 
 class ChatCubit extends Cubit<ChatState> {

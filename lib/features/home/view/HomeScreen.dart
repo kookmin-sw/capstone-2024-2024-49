@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:luckymoon/data/Counsellor.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:luckymoon/data/Counsellor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'UserListItem.dart';
@@ -12,10 +12,10 @@ class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
-
 class _HomeScreenState extends State<HomeScreen> {
   List<Counsellor> _counsellors = [];
   String _nickname = "";
+
 
   @override
   void initState() {
@@ -33,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
         print("counsellors size : ${_counsellors.length}");
       });
     }).catchError((error) {
-      print('상담자 정보를 가져오는 중 오류 발생: $error');
+      print('상담사 정보를 가져오는 중 오류 발생: $error');
     });
   }
 
@@ -53,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('상담자 리스트'),
+        title: const Text('상담사 리스트'),
         actions: <Widget>[
           TextButton.icon(
             icon: const Icon(Icons.account_box_rounded),

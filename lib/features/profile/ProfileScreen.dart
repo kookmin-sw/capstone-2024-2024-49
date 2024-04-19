@@ -115,7 +115,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('내정보'),
+        title: const Text('내정보'),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,

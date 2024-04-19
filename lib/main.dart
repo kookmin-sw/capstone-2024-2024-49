@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocWidget(
       child: MaterialApp.router(
-        title: '컨설팅',
+        title: '무꾸리',
         theme: theme(),
         debugShowCheckedModeBanner: false,
         routerConfig: appRouter,

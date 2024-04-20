@@ -3,10 +3,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/board/board_screen.dart';
 import '../../features/chat/view/chat_screen.dart';
-import '../../features/home/view/HomeScreen.dart';
-import '../../features/login/view/SignUpScreen.dart';
-import '../../features/login/view/LoginScreen.dart';
-import '../../features/profile/ProfileScreen.dart';
+import '../../features/home/view/home_screen.dart';
+import '../../features/login/view/signup_screen.dart';
+import '../../features/login/view/login_screen.dart';
+import '../../features/profile/profile_screen.dart';
 import '../../main.dart';
 
 

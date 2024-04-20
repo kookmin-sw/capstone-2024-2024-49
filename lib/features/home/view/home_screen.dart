@@ -5,8 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../chat/view/chat_list_screen.dart';
-import '../../list/view/UserListScreen.dart';
-import '../../profile/ProfileScreen.dart';
+import '../../list/view/user_list_screen.dart';
+import '../../profile/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

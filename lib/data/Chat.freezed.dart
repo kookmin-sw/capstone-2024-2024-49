@@ -20,9 +20,10 @@ Chat _$ChatFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Chat {
-  String get id => throw _privateConstructorUsedError;
+  String? get chatId => throw _privateConstructorUsedError;
   String get counsellorId => throw _privateConstructorUsedError;
   String get userId => throw _privateConstructorUsedError;
+  bool get isClosed => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -34,7 +35,8 @@ abstract class $ChatCopyWith<$Res> {
   factory $ChatCopyWith(Chat value, $Res Function(Chat) then) =
       _$ChatCopyWithImpl<$Res, Chat>;
   @useResult
-  $Res call({String id, String counsellorId, String userId});
+  $Res call(
+      {String? chatId, String counsellorId, String userId, bool isClosed});
 }
 
 /// @nodoc
@@ -50,15 +52,16 @@ class _$ChatCopyWithImpl<$Res, $Val extends Chat>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
+    Object? chatId = freezed,
     Object? counsellorId = null,
     Object? userId = null,
+    Object? isClosed = null,
   }) {
     return _then(_value.copyWith(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
+      chatId: freezed == chatId
+          ? _value.chatId
+          : chatId // ignore: cast_nullable_to_non_nullable
+              as String?,
       counsellorId: null == counsellorId
           ? _value.counsellorId
           : counsellorId // ignore: cast_nullable_to_non_nullable
@@ -67,6 +70,10 @@ class _$ChatCopyWithImpl<$Res, $Val extends Chat>
           ? _value.userId
           : userId // ignore: cast_nullable_to_non_nullable
               as String,
+      isClosed: null == isClosed
+          ? _value.isClosed
+          : isClosed // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
@@ -78,7 +85,8 @@ abstract class _$$ChatImplCopyWith<$Res> implements $ChatCopyWith<$Res> {
       __$$ChatImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String id, String counsellorId, String userId});
+  $Res call(
+      {String? chatId, String counsellorId, String userId, bool isClosed});
 }
 
 /// @nodoc
@@ -91,15 +99,16 @@ class __$$ChatImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
+    Object? chatId = freezed,
     Object? counsellorId = null,
     Object? userId = null,
+    Object? isClosed = null,
   }) {
     return _then(_$ChatImpl(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
+      chatId: freezed == chatId
+          ? _value.chatId
+          : chatId // ignore: cast_nullable_to_non_nullable
+              as String?,
       counsellorId: null == counsellorId
           ? _value.counsellorId
           : counsellorId // ignore: cast_nullable_to_non_nullable
@@ -108,6 +117,10 @@ class __$$ChatImplCopyWithImpl<$Res>
           ? _value.userId
           : userId // ignore: cast_nullable_to_non_nullable
               as String,
+      isClosed: null == isClosed
+          ? _value.isClosed
+          : isClosed // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -116,21 +129,26 @@ class __$$ChatImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$ChatImpl implements _Chat {
   const _$ChatImpl(
-      {required this.id, required this.counsellorId, required this.userId});
+      {required this.chatId,
+      required this.counsellorId,
+      required this.userId,
+      required this.isClosed});
 
   factory _$ChatImpl.fromJson(Map<String, dynamic> json) =>
       _$$ChatImplFromJson(json);
 
   @override
-  final String id;
+  final String? chatId;
   @override
   final String counsellorId;
   @override
   final String userId;
+  @override
+  final bool isClosed;
 
   @override
   String toString() {
-    return 'Chat(id: $id, counsellorId: $counsellorId, userId: $userId)';
+    return 'Chat(chatId: $chatId, counsellorId: $counsellorId, userId: $userId, isClosed: $isClosed)';
   }
 
   @override
@@ -138,15 +156,18 @@ class _$ChatImpl implements _Chat {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$ChatImpl &&
-            (identical(other.id, id) || other.id == id) &&
+            (identical(other.chatId, chatId) || other.chatId == chatId) &&
             (identical(other.counsellorId, counsellorId) ||
                 other.counsellorId == counsellorId) &&
-            (identical(other.userId, userId) || other.userId == userId));
+            (identical(other.userId, userId) || other.userId == userId) &&
+            (identical(other.isClosed, isClosed) ||
+                other.isClosed == isClosed));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, id, counsellorId, userId);
+  int get hashCode =>
+      Object.hash(runtimeType, chatId, counsellorId, userId, isClosed);
 
   @JsonKey(ignore: true)
   @override
@@ -164,18 +185,21 @@ class _$ChatImpl implements _Chat {
 
 abstract class _Chat implements Chat {
   const factory _Chat(
-      {required final String id,
+      {required final String? chatId,
       required final String counsellorId,
-      required final String userId}) = _$ChatImpl;
+      required final String userId,
+      required final bool isClosed}) = _$ChatImpl;
 
   factory _Chat.fromJson(Map<String, dynamic> json) = _$ChatImpl.fromJson;
 
   @override
-  String get id;
+  String? get chatId;
   @override
   String get counsellorId;
   @override
   String get userId;
+  @override
+  bool get isClosed;
   @override
   @JsonKey(ignore: true)
   _$$ChatImplCopyWith<_$ChatImpl> get copyWith =>

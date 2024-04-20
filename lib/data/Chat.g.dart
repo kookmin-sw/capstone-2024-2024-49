@@ -7,14 +7,16 @@ part of 'Chat.dart';
 // **************************************************************************
 
 _$ChatImpl _$$ChatImplFromJson(Map<String, dynamic> json) => _$ChatImpl(
-      id: json['id'] as String,
+      chatId: json['chatId'] as String?,
       counsellorId: json['counsellorId'] as String,
       userId: json['userId'] as String,
+      isClosed: json['isClosed'] as bool,
     );
 
 Map<String, dynamic> _$$ChatImplToJson(_$ChatImpl instance) =>
     <String, dynamic>{
-      'id': instance.id,
+      'chatId': instance.chatId,
       'counsellorId': instance.counsellorId,
       'userId': instance.userId,
+      'isClosed': instance.isClosed,
     };

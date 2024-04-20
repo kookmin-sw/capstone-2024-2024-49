@@ -114,9 +114,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _getUserInfo();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('내정보'),
-      ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,

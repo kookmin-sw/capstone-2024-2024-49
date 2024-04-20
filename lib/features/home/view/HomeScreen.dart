@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'UserListItem.dart';
+import '../../chat/view/chat_list_screen.dart';
+import '../../list/view/UserListScreen.dart';
+import '../../profile/ProfileScreen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,29 +14,25 @@ class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
-class _HomeScreenState extends State<HomeScreen> {
-  List<Counsellor> _counsellors = [];
-  String _nickname = "";
 
+class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  String _nickname = "";
 
   @override
   void initState() {
     super.initState();
-    _fetchCounsellors();
+    _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(_setAppBarTitle);
+
+    _getNickname();
   }
 
-  void _fetchCounsellors() {
-    FirebaseFirestore.instance.collection('counsellors').get().then((snapshot) {
-      setState(() {
-        _counsellors = snapshot.docs
-            .map((doc) => Counsellor.fromJson(doc.data()))
-            .toList();
-
-        print("counsellors size : ${_counsellors.length}");
-      });
-    }).catchError((error) {
-      print('상담사 정보를 가져오는 중 오류 발생: $error');
-    });
+  @override
+  void dispose() {
+    _tabController.removeListener(_setAppBarTitle);
+    _tabController.dispose();
+    super.dispose();
   }
 
   Future<void> _getNickname() async {
@@ -47,31 +45,46 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _setAppBarTitle() {
+    setState(() {}); // 앱바 타이틀을 업데이트하기 위해 상태를 갱신
+  }
+
   @override
   Widget build(BuildContext context) {
-    _getNickname();
-
+    List<String> titles = ["상담사 리스트", "챗 리스트", "내 프로필"];
     return Scaffold(
       appBar: AppBar(
-        title: const Text('상담사 리스트'),
-        actions: <Widget>[
-          TextButton.icon(
-            icon: const Icon(Icons.account_box_rounded),
-            label: Text(_nickname), // 텍스트 설정
-            onPressed: () {
-              context.push('/profile'); // 버튼 클릭 시 수행할 동작
-            },
-          )
+          title: Text(titles[_tabController.index]),
+          actions: <Widget>[
+            TextButton.icon(
+              icon: const Icon(Icons.account_box_rounded),
+              label: Text(_nickname),
+              onPressed: () {
+                context.push('/profile');
+              },
+            )
+          ],
+        ),
+      body: TabBarView(
+        controller: _tabController,
+        physics: NeverScrollableScrollPhysics(), // 스와이프로 탭 변경을 막음
+        children: const [
+          UserListScreen(),
+          ChatListScreen(),
+          ProfileScreen(),
         ],
       ),
-      body: ListView.builder(
-        itemCount: _counsellors.length,
-        itemBuilder: (BuildContext context, int index) {
-          var counsellor = _counsellors[index];
-          return UserListItem(
-            counsellor: counsellor,
-          );
-        },
+      bottomNavigationBar: TabBar(
+        controller: _tabController,
+        tabs: const [
+          Tab(icon: Icon(Icons.list), text: 'List'),
+          Tab(icon: Icon(Icons.chat), text: 'Chat'),
+          Tab(icon: Icon(Icons.person), text: 'Profile'),
+        ],
+        labelColor: Theme.of(context).primaryColor,
+        unselectedLabelColor: Colors.grey,
+        indicatorSize: TabBarIndicatorSize.label,
+        indicatorPadding: EdgeInsets.all(5.0),
       ),
     );
   }

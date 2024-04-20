@@ -8,8 +8,8 @@ import 'package:luckymoon/features/chat/cubit/chat_cubit.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../data/Counsellor.dart';
-import 'chat_service.dart';
+import '../../../data/Counsellor.dart';
+import '../chat_service.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({Key? key}) : super(key: key);
@@ -55,6 +55,7 @@ class _ChatScreenState extends State<ChatScreen> {
     var chatQuery = await firestore.collection('chats')
         .where('counsellorId', isEqualTo: counsellor.userId)
         .where('userId', isEqualTo: userId)
+        .where('isClosed', isEqualTo: false)
         .limit(1)
         .get();
 
@@ -63,28 +64,18 @@ class _ChatScreenState extends State<ChatScreen> {
       DocumentReference chatRoomRef = await firestore.collection('chats').add({
         'counsellorId': counsellor.userId,
         'userId': userId,
+        'isClosed': false,
       });
 
-      // 새로 생성된 채팅방 ID
+      // 새로 생성된 채팅방 ID로 chatId 필드 업데이트
       chatRoomId = chatRoomRef.id;
+      await chatRoomRef.update({'chatId': chatRoomId});
+
       chatService = ChatService(chatRoomId);
       logger.d("=======> chatRoomId : $chatRoomId");
 
-      // 채팅방에 추가할 초기 메시지 생성
-      String currentDate = DateFormat('yyyy년 M월 d일 EEEE').format(DateTime.now());
-      List<Message> initialMessages = [
-        Message(sender: "system", text: currentDate, timestamp: DateTime.now()),
-        Message(sender: "system", text: '${counsellor.nickname} 님의 상담소에 입장하셨습니다', timestamp: DateTime.now()),
-      ];
-
-      // Firestore에 초기 메시지들을 저장
-      for (var message in initialMessages) {
-        chatService.sendMessage("system", message.text);
-      }
-
-      setState(() {
-        _messages.addAll(initialMessages);
-      });
+      // 채팅방에 추가할 초기 메시지 생성 및 보내기
+      _initializeChatMessages(counsellor, chatService);
     } else {
       // 채팅방이 존재하는 경우 해당 채팅방의 메시지를 로드
       chatRoomId = chatQuery.docs.first.id;
@@ -97,8 +88,23 @@ class _ChatScreenState extends State<ChatScreen> {
         });
       });
     }
+  }
 
+  void _initializeChatMessages(Counsellor counsellor, ChatService chatService) {
+    String currentDate = DateFormat('yyyy년 M월 d일 EEEE').format(DateTime.now());
+    List<Message> initialMessages = [
+      Message(sender: "system", text: currentDate, timestamp: DateTime.now()),
+      Message(sender: "system", text: '${counsellor.nickname} 님의 상담소에 입장하셨습니다', timestamp: DateTime.now()),
+    ];
 
+    // Firestore에 초기 메시지들을 저장
+    for (var message in initialMessages) {
+      chatService.sendMessage("system", message.text);
+    }
+
+    setState(() {
+      _messages.addAll(initialMessages);
+    });
   }
 
   void _sendMessage() {

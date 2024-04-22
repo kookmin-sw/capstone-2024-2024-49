@@ -9,8 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../data/User.dart';
-import '../cubit/chat_cubit.dart';
-import 'chat_list_item.dart';
+import '../cubit/consult_cubit.dart';
 import 'consult_list_item.dart';
 
 

@@ -5,16 +5,17 @@ import 'package:intl/intl.dart';
 import 'package:luckymoon/data/Counsellor.dart';
 import 'package:luckymoon/data/Message.dart';
 
-import '../cubit/chat_cubit.dart';
+import '../../../data/User.dart';
+import '../cubit/consult_cubit.dart';
 
-class ChatListItem extends StatelessWidget {
-  final Counsellor counsellor;
+class ConsultListItem extends StatelessWidget {
+  final User user;
   final String messageText;
   final DateTime messageTime;
 
-  const ChatListItem({
+  const ConsultListItem({
     Key? key,
-    required this.counsellor,
+    required this.user,
     required this.messageText,
     required this.messageTime,
   }) : super(key: key);
@@ -40,8 +41,8 @@ class ChatListItem extends StatelessWidget {
 
     return InkWell(
       onTap: () {
-        context.read<ChatCubit>().setCounsellor(counsellor);
-        context.push('/chat');
+        context.read<ConsultCubit>().setUser(user);
+        context.push('/consult');
       },
       child: Card(
         margin: const EdgeInsets.all(8.0),
@@ -49,23 +50,17 @@ class ChatListItem extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: Row(
             children: [
-              CircleAvatar(
+              const CircleAvatar(
                 radius: 40,
-                backgroundImage: counsellor.profileUrl != null &&
-                    counsellor.profileUrl!.isNotEmpty
-                    ? NetworkImage(counsellor.profileUrl!)
-                    : null,
-                child: counsellor.profileUrl == null ||
-                    counsellor.profileUrl!.isEmpty
-                    ? const Icon(Icons.person, size: 40)
-                    : null,
+                backgroundImage: null,
+                child: Icon(Icons.person, size: 40)
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(counsellor.nickname,
+                    Text(user.nickname,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,

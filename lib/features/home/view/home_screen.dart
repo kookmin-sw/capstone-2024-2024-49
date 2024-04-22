@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../chat/view/chat_list_screen.dart';
-import '../../chat/view/consult_list_screen.dart';
+import '../../consult/view/consult_list_screen.dart';
 import '../../list/view/user_list_screen.dart';
 import '../../profile/profile_screen.dart';
 
@@ -95,9 +95,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             TextButton.icon(
               icon: const Icon(Icons.account_box_rounded),
               label: Text(_nickname),
-              onPressed: () {
-                context.push('/profile');
-              },
+              onPressed: () {},
             )
           ],
         ),

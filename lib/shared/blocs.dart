@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:luckymoon/features/board/cubit/board_cubit.dart';
 
 import '../features/chat/cubit/chat_cubit.dart';
+import '../features/consult/cubit/consult_cubit.dart';
 import '../features/home/cubit/home_cubit.dart';
 
 class BlocWidget extends StatelessWidget {
@@ -22,6 +23,9 @@ class BlocWidget extends StatelessWidget {
         ),
         BlocProvider<ChatCubit>(
           create: (BuildContext context) => ChatCubit(),
+        ),
+        BlocProvider<ConsultCubit>(
+          create: (BuildContext context) => ConsultCubit(),
         ),
       ],
       child: child,

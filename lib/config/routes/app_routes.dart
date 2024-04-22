@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/board/board_screen.dart';
 import '../../features/chat/view/chat_screen.dart';
+import '../../features/consult/view/consult_screen.dart';
 import '../../features/home/view/home_screen.dart';
 import '../../features/login/view/signup_screen.dart';
 import '../../features/login/view/login_screen.dart';
@@ -56,6 +57,12 @@ GoRouter appRouter = GoRouter(
         path: '/chat',
         builder: (context, state) {
           return const ChatScreen();
+        }
+    ),
+    GoRoute(
+        path: '/consult',
+        builder: (context, state) {
+          return const ConsultScreen();
         }
     ),
 

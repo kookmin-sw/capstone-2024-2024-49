@@ -23,6 +23,7 @@ mixin _$User {
   String get userId => throw _privateConstructorUsedError;
   String get password => throw _privateConstructorUsedError;
   String get nickname => throw _privateConstructorUsedError;
+  bool get isCounsellor => throw _privateConstructorUsedError;
   String? get profileUrl => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -36,7 +37,11 @@ abstract class $UserCopyWith<$Res> {
       _$UserCopyWithImpl<$Res, User>;
   @useResult
   $Res call(
-      {String userId, String password, String nickname, String? profileUrl});
+      {String userId,
+      String password,
+      String nickname,
+      bool isCounsellor,
+      String? profileUrl});
 }
 
 /// @nodoc
@@ -55,6 +60,7 @@ class _$UserCopyWithImpl<$Res, $Val extends User>
     Object? userId = null,
     Object? password = null,
     Object? nickname = null,
+    Object? isCounsellor = null,
     Object? profileUrl = freezed,
   }) {
     return _then(_value.copyWith(
@@ -70,6 +76,10 @@ class _$UserCopyWithImpl<$Res, $Val extends User>
           ? _value.nickname
           : nickname // ignore: cast_nullable_to_non_nullable
               as String,
+      isCounsellor: null == isCounsellor
+          ? _value.isCounsellor
+          : isCounsellor // ignore: cast_nullable_to_non_nullable
+              as bool,
       profileUrl: freezed == profileUrl
           ? _value.profileUrl
           : profileUrl // ignore: cast_nullable_to_non_nullable
@@ -86,7 +96,11 @@ abstract class _$$UserImplCopyWith<$Res> implements $UserCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {String userId, String password, String nickname, String? profileUrl});
+      {String userId,
+      String password,
+      String nickname,
+      bool isCounsellor,
+      String? profileUrl});
 }
 
 /// @nodoc
@@ -102,6 +116,7 @@ class __$$UserImplCopyWithImpl<$Res>
     Object? userId = null,
     Object? password = null,
     Object? nickname = null,
+    Object? isCounsellor = null,
     Object? profileUrl = freezed,
   }) {
     return _then(_$UserImpl(
@@ -117,6 +132,10 @@ class __$$UserImplCopyWithImpl<$Res>
           ? _value.nickname
           : nickname // ignore: cast_nullable_to_non_nullable
               as String,
+      isCounsellor: null == isCounsellor
+          ? _value.isCounsellor
+          : isCounsellor // ignore: cast_nullable_to_non_nullable
+              as bool,
       profileUrl: freezed == profileUrl
           ? _value.profileUrl
           : profileUrl // ignore: cast_nullable_to_non_nullable
@@ -132,6 +151,7 @@ class _$UserImpl implements _User {
       {required this.userId,
       required this.password,
       required this.nickname,
+      required this.isCounsellor,
       this.profileUrl});
 
   factory _$UserImpl.fromJson(Map<String, dynamic> json) =>
@@ -144,11 +164,13 @@ class _$UserImpl implements _User {
   @override
   final String nickname;
   @override
+  final bool isCounsellor;
+  @override
   final String? profileUrl;
 
   @override
   String toString() {
-    return 'User(userId: $userId, password: $password, nickname: $nickname, profileUrl: $profileUrl)';
+    return 'User(userId: $userId, password: $password, nickname: $nickname, isCounsellor: $isCounsellor, profileUrl: $profileUrl)';
   }
 
   @override
@@ -161,14 +183,16 @@ class _$UserImpl implements _User {
                 other.password == password) &&
             (identical(other.nickname, nickname) ||
                 other.nickname == nickname) &&
+            (identical(other.isCounsellor, isCounsellor) ||
+                other.isCounsellor == isCounsellor) &&
             (identical(other.profileUrl, profileUrl) ||
                 other.profileUrl == profileUrl));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, userId, password, nickname, profileUrl);
+  int get hashCode => Object.hash(
+      runtimeType, userId, password, nickname, isCounsellor, profileUrl);
 
   @JsonKey(ignore: true)
   @override
@@ -189,6 +213,7 @@ abstract class _User implements User {
       {required final String userId,
       required final String password,
       required final String nickname,
+      required final bool isCounsellor,
       final String? profileUrl}) = _$UserImpl;
 
   factory _User.fromJson(Map<String, dynamic> json) = _$UserImpl.fromJson;
@@ -199,6 +224,8 @@ abstract class _User implements User {
   String get password;
   @override
   String get nickname;
+  @override
+  bool get isCounsellor;
   @override
   String? get profileUrl;
   @override

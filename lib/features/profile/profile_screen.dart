@@ -59,6 +59,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // 인증번호 검증
     if (certificationCode != null && certificationCode == '0000') {
       // 상담자 코멘트 입력을 위한 다이얼로그
+      // ignore: use_build_context_synchronously
       String? comment = await showDialog<String>(
         context: context,
         builder: (BuildContext context) {
@@ -98,10 +99,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
             .then((value) {
           ScaffoldMessenger.of(context)
               .showSnackBar(const SnackBar(content: Text('상담자로 등록됐습니다.')));
+
         }).catchError((error) {
           ScaffoldMessenger.of(context)
               .showSnackBar(SnackBar(content: Text('상담자 등록에 실패했습니다: $error')));
         });
+
+        FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .update({'isCounsellor': true});
       }
     } else {
       ScaffoldMessenger.of(context)

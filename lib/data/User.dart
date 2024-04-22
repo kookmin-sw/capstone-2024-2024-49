@@ -9,6 +9,7 @@ class User with _$User {
     required String userId,
     required String password,
     required String nickname,
+    required bool isCounsellor,
     String? profileUrl, // 옵셔널 필드
   }) = _User;
 

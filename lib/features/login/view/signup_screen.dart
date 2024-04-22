@@ -52,6 +52,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       userId: userId,
       password: password,
       nickname: nickname,
+      isCounsellor: false
     );
 
     final userJson = user.toJson();

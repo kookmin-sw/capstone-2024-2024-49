@@ -1,3 +1,4 @@
+import 'package:luckymoon/core/logger.dart';
 import 'package:luckymoon/data/Counsellor.dart';
 import 'package:luckymoon/features/board/cubit/board_cubit.dart';
 import 'package:luckymoon/features/chat/cubit/chat_cubit.dart';
@@ -17,6 +18,8 @@ class UserListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    logger.e("profileUrl : ${counsellor.profileUrl}");
     return Card(
       margin: const EdgeInsets.all(8.0),
       child: Padding(

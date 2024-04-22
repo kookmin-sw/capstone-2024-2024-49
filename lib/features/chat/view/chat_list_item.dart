@@ -31,7 +31,7 @@ class ChatListItem extends StatelessWidget {
     if (dateOfMessage == today) {
       // 오늘 날짜인 경우 시간만 표시
       String hourMinute = DateFormat('hh:mm').format(messageTime);
-      String amPm = dateOfMessage.hour >= 12 ? '오후' : '오전';
+      String amPm = messageTime.hour >= 12 ? '오후' : '오전';
       formattedDate = '$amPm $hourMinute';
     } else {
       // 다른 날짜인 경우 월, 일 표시

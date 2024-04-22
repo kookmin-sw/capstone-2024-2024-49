@@ -1,9 +1,14 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:luckymoon/core/logger.dart';
 import 'package:luckymoon/data/Counsellor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../core/blank.dart';
 
@@ -58,57 +63,90 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     // 인증번호 검증
     if (certificationCode != null && certificationCode == '0000') {
+      XFile? imageFile;
+      final ImagePicker _picker = ImagePicker();
+
       // 상담자 코멘트 입력을 위한 다이얼로그
       // ignore: use_build_context_synchronously
       String? comment = await showDialog<String>(
         context: context,
         builder: (BuildContext context) {
           TextEditingController commentController = TextEditingController();
-          return AlertDialog(
-            title: const Text('상담자 코멘트 입력'),
-            content: TextField(
-              controller: commentController,
-              decoration: const InputDecoration(hintText: "코멘트를 입력하세요"),
-            ),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () => Navigator.pop(context, commentController.text),
-                child: const Text('확인'),
-              ),
-            ],
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return AlertDialog(
+                title: const Text('상담사 정보 입력'),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    IconButton(
+                      icon: imageFile != null ? Image.file(File(imageFile!.path), height: 100) : const Icon(Icons.add_photo_alternate, size: 40),
+                      onPressed: () async {
+                        imageFile = await _picker.pickImage(source: ImageSource.gallery);
+                        setState(() {});
+                      },
+                    ),
+                    TextField(
+                      controller: commentController,
+                      decoration: const InputDecoration(hintText: "코멘트를 입력하세요"),
+                    ),
+                  ],
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, commentController.text),
+                    child: const Text('확인'),
+                  ),
+                ],
+              );
+            },
           );
         },
       );
 
       if (comment != null && comment.isNotEmpty) {
-        // User 객체 생성
+        String imageUrl = '';
+        if (imageFile != null) {
+          // firebase storage 에 이미지 업로드 후 url 생성
+          File file = File(imageFile!.path);
+          try {
+            final ref = FirebaseStorage.instance.ref().child('profileImages').child(userId);
+            await ref.putFile(file);
+            imageUrl = await ref.getDownloadURL();
+
+            setState(() {
+              profileUrl = imageUrl;
+            });
+          } catch (e) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 업로드 실패: $e')));
+          }
+        }
+
         final counsellor = Counsellor(
           userId: userId,
           nickname: nickname,
           comment: comment,
           chatCount: 0,
           reviewCount: 0,
+          profileUrl: imageUrl, 
         );
-
-        final counsellorJson = counsellor.toJson();
 
         FirebaseFirestore.instance
             .collection('counsellors')
             .doc(userId)
-            .set(counsellorJson)
+            .set(counsellor.toJson())
             .then((value) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('상담자로 등록됐습니다.')));
-
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('상담자로 등록됐습니다.')));
         }).catchError((error) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('상담자 등록에 실패했습니다: $error')));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('상담자 등록에 실패했습니다: $error')));
         });
 
         FirebaseFirestore.instance
             .collection('users')
             .doc(userId)
-            .update({'isCounsellor': true});
+            .update({'isCounsellor': true, 'profileUrl': imageUrl});
+
+
       }
     } else {
       ScaffoldMessenger.of(context)

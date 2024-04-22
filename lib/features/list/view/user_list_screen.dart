@@ -22,8 +22,15 @@ class _UserListScreenState extends State<UserListScreen> {
     _fetchCounsellors();
   }
 
-  void _fetchCounsellors() {
-    FirebaseFirestore.instance.collection('counsellors').get().then((snapshot) {
+  Future<void> _fetchCounsellors() async {
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('userId');
+
+    FirebaseFirestore.instance.collection('counsellors')
+        .where('userId', isNotEqualTo: userId)
+        .get()
+        .then((snapshot) {
       setState(() {
         _counsellors = snapshot.docs
             .map((doc) => Counsellor.fromJson(doc.data()))

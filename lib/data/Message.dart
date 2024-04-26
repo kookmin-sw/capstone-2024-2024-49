@@ -11,8 +11,10 @@ class Message with _$Message {
   const factory Message({
     required String sender,
     required String text,
+    String? image,
     @TimestampConverter() required DateTime timestamp,
   }) = _Message;
 
-  factory Message.fromJson(Map<String, dynamic> json) => _$MessageFromJson(json);
+  factory Message.fromJson(Map<String, dynamic> json) =>
+      _$MessageFromJson(json);
 }

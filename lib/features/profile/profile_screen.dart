@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../core/blank.dart';
+import '../../data/User.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -26,13 +27,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   // 사용자 정보를 가져오는 함수
   Future<void> _getUserInfo() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    setState(() {
-      userId = prefs.getString('userId')!;
-      nickname = prefs.getString('nickname')!;
-      profileUrl = prefs.getString('profileUrl');
-    });
+      String? id = prefs.getString('userId');
+      if (id == null) {
+        throw Exception('User ID not found in SharedPreferences');
+      }
+
+      var doc = await FirebaseFirestore.instance.collection('users').doc(id).get();
+      var userData = doc.data();
+      if (userData == null) {
+        throw Exception('User data not found in Firestore');
+      }
+
+      // User 객체를 생성합니다.
+      User user = User.fromJson(userData);
+
+      // 상태를 업데이트합니다.
+      setState(() {
+        userId = user.userId;
+        nickname = user.nickname;
+        profileUrl = user.profileUrl;
+      });
+    } catch (e) {
+      // 오류 처리: 로그를 남기거나 사용자에게 알립니다.
+      print('Failed to fetch user info: $e');
+    }
   }
 
   void becomeCounsellor(BuildContext context, String currentUserId) async {
@@ -165,7 +186,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: <Widget>[
           // 프로필 이미지, 아이디, 닉네임 표시
           CircleAvatar(
-            radius: 50,
+            radius: 40,
             backgroundImage: profileUrl != null && profileUrl!.isNotEmpty
                 ? NetworkImage(profileUrl!)
                 : null,
@@ -173,9 +194,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ? const Icon(Icons.person, size: 40)
                 : null,
           ),
+          const Blank(0, 25),
+          Center(child: Text("아이디 : $userId")),
           const Blank(0, 8),
-          Center(child: Text(userId)),
-          Center(child: Text(nickname)),
+          Center(child: Text("닉네임 : $nickname")),
           const Blank(0, 16),
           ElevatedButton(
             child: const Text('상담자 인증'),

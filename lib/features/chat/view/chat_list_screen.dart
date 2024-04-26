@@ -87,6 +87,10 @@ class _ChatListScreenState extends State<ChatListScreen> {
               String lastMessage = messageDoc['text'];
               DateTime lastTimestamp = messageDoc['timestamp'].toDate();
 
+              if (lastMessage.isEmpty) {
+                lastMessage = messageDoc['image'];
+              }
+
               return ChatListItem(
                 counsellor: counsellor,
                 messageText: lastMessage,

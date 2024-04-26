@@ -1,4 +1,9 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:luckymoon/core/logger.dart';
 import 'package:luckymoon/data/Message.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +12,8 @@ import 'package:intl/intl.dart';
 import 'package:luckymoon/features/chat/cubit/chat_cubit.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:image/image.dart' as Img;
+
 
 import '../../../data/Counsellor.dart';
 import '../chat_service.dart';
@@ -25,6 +32,7 @@ class _ChatScreenState extends State<ChatScreen> {
   late List<Message> _messages = [];
   late ChatService chatService;
   late String chatRoomId;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -99,7 +107,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     // Firestore에 초기 메시지들을 저장
     for (var message in initialMessages) {
-      chatService.sendMessage("system", message.text);
+      chatService.sendMessage("system", message.text!);
     }
 
     setState(() {
@@ -119,12 +127,80 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  Future<void> _pickImage() async {
+    final ImagePicker _picker = ImagePicker();
+
+    final XFile? imageFile = await _picker.pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      isLoading = true;
+    });
+
+    // 선택된 이미지를 Firestore에 업로드
+    String imageUrl = '';
+    if (imageFile != null) {
+      // 파일에서 이미지 데이터 읽기
+      Uint8List imageData = await imageFile.readAsBytes();
+      Img.Image? originalImage = Img.decodeImage(imageData);
+
+      // 이미지 너비를 300px로 고정하고 높이를 자동 조정
+      int width = 300;
+      double aspectRatio = originalImage!.width / originalImage.height;
+      int height = (width / aspectRatio).round();
+
+      Img.Image resizedImage = Img.copyResize(originalImage, width: width, height: height);
+
+      // 조정된 이미지를 새 파일로 저장
+      List<int> resizedImageData = Img.encodeJpg(resizedImage);
+      File resizedFile = await File("${imageFile.path}_resized").writeAsBytes(resizedImageData);
+
+
+
+      // firebase storage 에 이미지 업로드 후 url 생성
+      File file = File(resizedFile!.path);
+      try {
+        final ref = FirebaseStorage.instance.ref().child('chatImages').child(imageFile!.path);
+        await ref.putFile(file);
+        imageUrl = await ref.getDownloadURL();
+
+        chatService.sendImage("user", imageUrl);
+
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 업로드 실패: $e')));
+      }
+    }
+
+    if (imageUrl != null) {
+      setState(() {
+        _messages.add(
+            Message(sender: "user", text: "", image: imageUrl, timestamp: DateTime.now())
+        );
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('채팅'),
+        title: const Text('내담자 채팅방'),
         backgroundColor: Colors.yellow[600],
+        actions: <Widget>[
+          Container(
+            margin: const EdgeInsets.all(8),  // 여백을 주어 아이콘과 앱바 사이의 간격을 조정
+            decoration: const BoxDecoration(
+              color: Colors.white,  // 버튼 배경색
+              shape: BoxShape.circle,  // 원형 버튼
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.description, color: Colors.black),  // 문서 아이콘
+              onPressed: () {
+                // 여기에 버튼 클릭 시 실행할 기능 추가
+              },
+            ),
+          ),
+        ],
       ),
       body: Column(
         children: <Widget>[
@@ -139,7 +215,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   return Center(
                     child: Padding(
                       padding: const EdgeInsets.all(8),
-                      child: Text(message.text, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                      child: Text(message.text!, style: const TextStyle(fontSize: 14, color: Colors.grey)),
                     ),
                   );
                 }
@@ -167,31 +243,63 @@ class _ChatScreenState extends State<ChatScreen> {
                                 style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                               ),
                             ),
-                            Container(
-                              margin: EdgeInsets.only(top: 5, bottom: 5, left: isUser ? 10 : 5, right: isUser ? 5 : 10),
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: isUser ? Colors.yellow[600] : Colors.grey[300],
-                                borderRadius: BorderRadius.circular(12),
+                            if (message.text != null) // 메시지의 텍스트가 있는 경우 텍스트를 보여줌
+                              Container(
+                                margin: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 10),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  message.text!,
+                                  style: const TextStyle(color: Colors.black),
+                                ),
                               ),
-                              child: Text(
-                                message.text,
-                                style: const TextStyle(color: Colors.black),
+                            if (message.text.isEmpty && message.image != null) // 이미지 URL이 있는 경우 이미지를 보여줌
+                              Container(
+                                margin: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 10),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    maxWidth: 300, // 최대 너비 300px
+                                  ),
+                                  child: Image.network(
+                                    message.image!,
+                                    fit: BoxFit.cover, // 이미지를 컨테이너에 맞게 조정
+                                  ),
+                                ),
                               ),
-                            ),
                           ],
                         ),
                       if(isUser)
                         Container(
-                          margin: EdgeInsets.only(top: isUser ? 5 : 20, bottom: 5, left: isUser ? 10 : 5, right: isUser ? 5 : 10),
+                          margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 5),
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
-                            color: isUser ? Colors.yellow[600] : Colors.grey[300],
+                            color: Colors.yellow[600],
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Text(
-                            message.text,
-                            style: const TextStyle(color: Colors.black),
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxWidth: 300, // 최대 너비 300px
+                            ),
+                            child: message.text.isNotEmpty ?
+                            Text(
+                              message.text,
+                              style: const TextStyle(color: Colors.black),
+                            ) :
+                            (message.image != null ?
+                            Image.network(
+                              message.image!,
+                              fit: BoxFit.cover, // 이미지를 컨테이너에 맞게 조정
+                            ) :
+                            const Text("No content") // 텍스트와 이미지 모두 없는 경우 대체 텍스트 표시
+                            ),
                           ),
                         ),
                     ],
@@ -200,10 +308,19 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
           ),
+          if (isLoading) // 로딩 인디케이터 표시
+            const Center(child: CircularProgressIndicator()),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: <Widget>[
+                IconButton(
+                  onPressed: () {
+                    _pickImage();
+                  },
+                  icon: const Icon(Icons.attach_file),
+                  color: Colors.black,
+                ),
                 Expanded(
                   child: TextField(
                     controller: _messageController,
@@ -220,7 +337,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 IconButton(
                   onPressed: _sendMessage,
                   icon: const Icon(Icons.send),
-                  color: Colors.yellow[600],
+                  color: Colors.black,
                 ),
               ],
             ),

@@ -24,6 +24,19 @@ class ChatService {
         .add({
       'sender': sender,
       'text': message,
+      'image': "",
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Future<void> sendImage(String sender, String imageUrl) async {
+    await FirebaseFirestore.instance.collection('chats')
+        .doc(chatRoomId)
+        .collection('messages')
+        .add({
+      'sender': sender,
+      'text': "",
+      'image': imageUrl,
       'timestamp': FieldValue.serverTimestamp(),
     });
   }

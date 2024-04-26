@@ -53,10 +53,6 @@ class _LoginPageState extends State<LoginScreen> {
       await prefs.setString('nickname', user.nickname);
       await prefs.setBool('isLoggedIn', true);
 
-      if (user.profileUrl != null && user.profileUrl!.isNotEmpty) {
-        await prefs.setString('profileUrl', user.profileUrl!);
-      }
-
       // 일치하는 사용자가 있을 경우 Home 화면으로 이동
       context.go('/home');
     }

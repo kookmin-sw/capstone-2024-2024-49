@@ -24,6 +24,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String userId = "";
   String nickname = "";
   String? profileUrl = "";
+  bool isCounsellor = false;
+  bool isLoading = false;
 
   // 사용자 정보를 가져오는 함수
   Future<void> _getUserInfo() async {
@@ -49,6 +51,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         userId = user.userId;
         nickname = user.nickname;
         profileUrl = user.profileUrl;
+        isCounsellor = user.isCounsellor;
       });
     } catch (e) {
       // 오류 처리: 로그를 남기거나 사용자에게 알립니다.
@@ -115,7 +118,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 actions: <Widget>[
                   TextButton(
-                    onPressed: () => Navigator.pop(context, commentController.text),
+                    onPressed: () => {
+                      isLoading = true,
+                      Navigator.pop(context, commentController.text)
+                    },
                     child: const Text('확인'),
                   ),
                 ],
@@ -139,6 +145,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               profileUrl = imageUrl;
             });
           } catch (e) {
+            isLoading = false;
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 업로드 실패: $e')));
           }
         }
@@ -157,8 +164,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             .doc(userId)
             .set(counsellor.toJson())
             .then((value) {
+          isLoading = false;
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('상담자로 등록됐습니다.')));
         }).catchError((error) {
+          isLoading = false;
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('상담자 등록에 실패했습니다: $error')));
         });
 
@@ -175,45 +184,135 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  Widget _buildAccountSection() {
+    return Row(
+      children: [
+        Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            image: profileUrl != null && profileUrl!.isNotEmpty
+                ? DecorationImage(
+              image: NetworkImage(profileUrl!),
+              fit: BoxFit.cover,
+            )
+                : null,
+            color: Colors.grey[300],
+          ),
+          child: profileUrl == null || profileUrl!.isEmpty
+              ? const Icon(Icons.person, size: 30, color: Colors.white)
+              : null,
+        ),
+        const Blank(20, 0),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(nickname ?? "", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(userId ?? "", style: const TextStyle(fontSize: 14)),
+            ],
+          ),
+        ),
+        TextButton(
+          onPressed: () async {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            await prefs.setBool('isLoggedIn', false);
+            context.go('/login');
+          },
+          child: const Text(
+            '로그아웃',
+            style: TextStyle(
+              decoration: TextDecoration.underline,
+              color: Colors.blueAccent,
+              fontSize: 13,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCounsellorSection() {
+    if (isCounsellor == true) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
+            child: Text('상담자 메뉴', style: TextStyle(fontSize: 16, color: Colors.grey)),
+          ),
+          InkWell(
+            onTap: () {
+              // Handle 코멘트 변경 action
+            },
+            child: const Padding(
+              padding: EdgeInsets.only(left: 20.0, right: 20.0, top: 10, bottom: 10),
+              child: Text('코멘트 변경', style: TextStyle(fontSize: 16, color: Colors.black)),
+            ),
+          ),
+          InkWell(
+            onTap: () {
+              // 프로필 이미지 변경 action
+            },
+            child: const Padding(
+              padding: EdgeInsets.only(left: 20.0, right: 20.0, top: 10, bottom: 10),
+              child: Text('프로필 이미지 변경', style: TextStyle(fontSize: 16, color: Colors.black)),
+            ),
+          ),
+          InkWell(
+            onTap: () {
+              // 공지글 변경 action
+            },
+            child: const Padding(
+              padding: EdgeInsets.only(left: 20.0, right: 20.0, top: 10, bottom: 10),
+              child: Text('공지글 변경', style: TextStyle(fontSize: 16, color: Colors.black)),
+            ),
+          ),
+        ],
+      );
+    } else {
+      return Padding(
+        padding: const EdgeInsets.all(20.0),  // 모든 방향으로 20.0의 패딩 적용
+        child: ElevatedButton.icon(
+          icon: const Icon(Icons.verified_user, size: 24),
+          label: const Text('상담자 인증', style: TextStyle(fontSize: 16)),
+          onPressed: () => becomeCounsellor(context, userId!),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.deepPurple,
+            foregroundColor: Colors.white,
+            minimumSize: const Size(double.infinity, 50),
+          ),
+        ),
+      );
+    }
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     _getUserInfo();
 
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          // 프로필 이미지, 아이디, 닉네임 표시
-          CircleAvatar(
-            radius: 40,
-            backgroundImage: profileUrl != null && profileUrl!.isNotEmpty
-                ? NetworkImage(profileUrl!)
-                : null,
-            child: profileUrl == null || profileUrl!.isEmpty
-                ? const Icon(Icons.person, size: 40)
-                : null,
-          ),
-          const Blank(0, 25),
-          Center(child: Text("아이디 : $userId")),
-          const Blank(0, 8),
-          Center(child: Text("닉네임 : $nickname")),
-          const Blank(0, 16),
-          ElevatedButton(
-            child: const Text('상담자 인증'),
-            onPressed: () {
-              becomeCounsellor(context, userId);
-            },
-          ),
-          ElevatedButton(
-            child: const Text('로그아웃'),
-            onPressed: () async {
-              SharedPreferences prefs = await SharedPreferences.getInstance();
-              await prefs.setBool('isLoggedIn', false);
-              context.go('/login');
-            },
-          ),
-        ],
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: _buildAccountSection(),
+            ),
+            const Divider(color: Color(0xFFEAEAEA), thickness: 10),
+            Padding(
+              padding: const EdgeInsets.all(0.0),
+              child: _buildCounsellorSection(),
+            ),
+            const Divider(color: Color(0xFFEAEAEA), thickness: 10),
+            if (isLoading) // 로딩 인디케이터 표시
+              const Center(child: CircularProgressIndicator())
+          ],
+        ),
       ),
     );
   }

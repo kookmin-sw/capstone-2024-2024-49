@@ -188,15 +188,15 @@ class _ChatScreenState extends State<ChatScreen> {
         backgroundColor: Colors.yellow[600],
         actions: <Widget>[
           Container(
-            margin: const EdgeInsets.all(8),  // 여백을 주어 아이콘과 앱바 사이의 간격을 조정
+            margin: const EdgeInsets.all(8),
             decoration: const BoxDecoration(
-              color: Colors.white,  // 버튼 배경색
-              shape: BoxShape.circle,  // 원형 버튼
+              color: Colors.white,
+              shape: BoxShape.circle,
             ),
             child: IconButton(
-              icon: const Icon(Icons.description, color: Colors.black),  // 문서 아이콘
+              icon: const Icon(Icons.description, color: Colors.black),
               onPressed: () {
-                // 여기에 버튼 클릭 시 실행할 기능 추가
+
               },
             ),
           ),
@@ -266,11 +266,11 @@ class _ChatScreenState extends State<ChatScreen> {
                                 ),
                                 child: ConstrainedBox(
                                   constraints: BoxConstraints(
-                                    maxWidth: 300, // 최대 너비 300px
+                                    maxWidth: 300,
                                   ),
                                   child: Image.network(
                                     message.image!,
-                                    fit: BoxFit.cover, // 이미지를 컨테이너에 맞게 조정
+                                    fit: BoxFit.cover,
                                   ),
                                 ),
                               ),
@@ -286,7 +286,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           ),
                           child: ConstrainedBox(
                             constraints: BoxConstraints(
-                              maxWidth: 300, // 최대 너비 300px
+                              maxWidth: 300,
                             ),
                             child: message.text.isNotEmpty ?
                             Text(
@@ -296,9 +296,9 @@ class _ChatScreenState extends State<ChatScreen> {
                             (message.image != null ?
                             Image.network(
                               message.image!,
-                              fit: BoxFit.cover, // 이미지를 컨테이너에 맞게 조정
+                              fit: BoxFit.cover,
                             ) :
-                            const Text("No content") // 텍스트와 이미지 모두 없는 경우 대체 텍스트 표시
+                            const Text("No content")
                             ),
                           ),
                         ),

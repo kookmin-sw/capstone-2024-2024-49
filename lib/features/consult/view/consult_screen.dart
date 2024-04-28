@@ -151,7 +151,7 @@ class _ConsultScreenState extends State<ConsultScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('상담사 채팅방'),
-        backgroundColor: const Color(0xFF228B22),
+        backgroundColor: Colors.green[200]
       ),
       body: Column(
         children: <Widget>[
@@ -217,11 +217,11 @@ class _ConsultScreenState extends State<ConsultScreen> {
                                 ),
                                 child: ConstrainedBox(
                                   constraints: BoxConstraints(
-                                    maxWidth: 300, // 최대 너비 300px
+                                    maxWidth: 300,
                                   ),
                                   child: Image.network(
                                     message.image!,
-                                    fit: BoxFit.cover, // 이미지를 컨테이너에 맞게 조정
+                                    fit: BoxFit.cover,
                                   ),
                                 ),
                               ),
@@ -237,7 +237,7 @@ class _ConsultScreenState extends State<ConsultScreen> {
                           ),
                           child: ConstrainedBox(
                             constraints: BoxConstraints(
-                              maxWidth: 300, // 최대 너비 300px
+                              maxWidth: 300,
                             ),
                             child: message.text.isNotEmpty ?
                             Text(
@@ -247,9 +247,9 @@ class _ConsultScreenState extends State<ConsultScreen> {
                             (message.image != null ?
                             Image.network(
                               message.image!,
-                              fit: BoxFit.cover, // 이미지를 컨테이너에 맞게 조정
+                              fit: BoxFit.cover,
                             ) :
-                            const Text("No content") // 텍스트와 이미지 모두 없는 경우 대체 텍스트 표시
+                            const Text("No content")
                             ),
                           ),
                         ),
@@ -259,7 +259,7 @@ class _ConsultScreenState extends State<ConsultScreen> {
               },
             ),
           ),
-          if (isLoading) // 로딩 인디케이터 표시
+          if (isLoading)
             const Center(child: CircularProgressIndicator()),
           Padding(
             padding: const EdgeInsets.all(8.0),

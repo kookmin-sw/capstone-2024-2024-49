@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:luckymoon/data/Counsellor.dart';
-import 'package:luckymoon/data/Message.dart';
 
 import '../../../data/User.dart';
 import '../cubit/consult_cubit.dart';
@@ -45,15 +43,32 @@ class ConsultListItem extends StatelessWidget {
         context.push('/consult');
       },
       child: Card(
-        margin: const EdgeInsets.all(8.0),
+        margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        elevation: 5.0,
+        color: Colors.green[200],
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Row(
             children: [
-              const CircleAvatar(
-                radius: 40,
-                backgroundImage: null,
-                child: Icon(Icons.person, size: 40)
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  image: user.profileUrl != null && user.profileUrl!.isNotEmpty
+                      ? DecorationImage(
+                    image: NetworkImage(user.profileUrl!),
+                    fit: BoxFit.cover,
+                  )
+                      : null,
+                  color: Colors.grey[300],
+                ),
+                child: user.profileUrl == null || user.profileUrl!.isEmpty
+                    ? const Icon(Icons.person, size: 30, color: Colors.white)
+                    : null,
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -63,28 +78,23 @@ class ConsultListItem extends StatelessWidget {
                     Text(user.nickname,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 20,
+                          fontSize: 18,
+                          color: Colors.black87,
                         )),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 4),
                     Text(
                       messageText,
                       style: TextStyle(color: Colors.grey[600]),
                       overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
+                      maxLines: 2,
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(
-                    formattedDate,
-                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                  ),
-                ],
+              Text(
+                formattedDate,
+                style: TextStyle(color: Colors.grey[500], fontSize: 12),
               ),
             ],
           ),

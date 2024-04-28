@@ -44,20 +44,31 @@ class ChatListItem extends StatelessWidget {
         context.push('/chat');
       },
       child: Card(
-        margin: const EdgeInsets.all(8.0),
+        margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        elevation: 5.0,
+        color: Colors.yellow[600],
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Row(
             children: [
-              CircleAvatar(
-                radius: 40,
-                backgroundImage: counsellor.profileUrl != null &&
-                    counsellor.profileUrl!.isNotEmpty
-                    ? NetworkImage(counsellor.profileUrl!)
-                    : null,
-                child: counsellor.profileUrl == null ||
-                    counsellor.profileUrl!.isEmpty
-                    ? const Icon(Icons.person, size: 40)
+              Container(
+                width: 60,
+                height: 60, 
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  image: counsellor.profileUrl != null && counsellor.profileUrl!.isNotEmpty
+                      ? DecorationImage(
+                    image: NetworkImage(counsellor.profileUrl!),
+                    fit: BoxFit.cover,
+                  )
+                      : null,
+                  color: Colors.grey[300],
+                ),
+                child: counsellor.profileUrl == null || counsellor.profileUrl!.isEmpty
+                    ? const Icon(Icons.person, size: 30, color: Colors.white)
                     : null,
               ),
               const SizedBox(width: 16),
@@ -68,28 +79,23 @@ class ChatListItem extends StatelessWidget {
                     Text(counsellor.nickname,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 20,
+                          fontSize: 18,
+                          color: Colors.black87,
                         )),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 4),
                     Text(
                       messageText,
                       style: TextStyle(color: Colors.grey[600]),
                       overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
+                      maxLines: 2,
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(
-                    formattedDate,
-                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                  ),
-                ],
+              Text(
+                formattedDate,
+                style: TextStyle(color: Colors.grey[500], fontSize: 12),
               ),
             ],
           ),

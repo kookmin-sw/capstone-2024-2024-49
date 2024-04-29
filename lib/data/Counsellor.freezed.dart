@@ -23,6 +23,7 @@ mixin _$Counsellor {
   String get userId => throw _privateConstructorUsedError;
   String get nickname => throw _privateConstructorUsedError;
   String get comment => throw _privateConstructorUsedError;
+  String get notice => throw _privateConstructorUsedError;
   int get chatCount => throw _privateConstructorUsedError;
   int get reviewCount => throw _privateConstructorUsedError;
   String? get profileUrl => throw _privateConstructorUsedError;
@@ -43,6 +44,7 @@ abstract class $CounsellorCopyWith<$Res> {
       {String userId,
       String nickname,
       String comment,
+      String notice,
       int chatCount,
       int reviewCount,
       String? profileUrl});
@@ -64,6 +66,7 @@ class _$CounsellorCopyWithImpl<$Res, $Val extends Counsellor>
     Object? userId = null,
     Object? nickname = null,
     Object? comment = null,
+    Object? notice = null,
     Object? chatCount = null,
     Object? reviewCount = null,
     Object? profileUrl = freezed,
@@ -80,6 +83,10 @@ class _$CounsellorCopyWithImpl<$Res, $Val extends Counsellor>
       comment: null == comment
           ? _value.comment
           : comment // ignore: cast_nullable_to_non_nullable
+              as String,
+      notice: null == notice
+          ? _value.notice
+          : notice // ignore: cast_nullable_to_non_nullable
               as String,
       chatCount: null == chatCount
           ? _value.chatCount
@@ -109,6 +116,7 @@ abstract class _$$CounsellorImplCopyWith<$Res>
       {String userId,
       String nickname,
       String comment,
+      String notice,
       int chatCount,
       int reviewCount,
       String? profileUrl});
@@ -128,6 +136,7 @@ class __$$CounsellorImplCopyWithImpl<$Res>
     Object? userId = null,
     Object? nickname = null,
     Object? comment = null,
+    Object? notice = null,
     Object? chatCount = null,
     Object? reviewCount = null,
     Object? profileUrl = freezed,
@@ -144,6 +153,10 @@ class __$$CounsellorImplCopyWithImpl<$Res>
       comment: null == comment
           ? _value.comment
           : comment // ignore: cast_nullable_to_non_nullable
+              as String,
+      notice: null == notice
+          ? _value.notice
+          : notice // ignore: cast_nullable_to_non_nullable
               as String,
       chatCount: null == chatCount
           ? _value.chatCount
@@ -168,6 +181,7 @@ class _$CounsellorImpl implements _Counsellor {
       {required this.userId,
       required this.nickname,
       required this.comment,
+      required this.notice,
       required this.chatCount,
       required this.reviewCount,
       this.profileUrl});
@@ -182,6 +196,8 @@ class _$CounsellorImpl implements _Counsellor {
   @override
   final String comment;
   @override
+  final String notice;
+  @override
   final int chatCount;
   @override
   final int reviewCount;
@@ -190,7 +206,7 @@ class _$CounsellorImpl implements _Counsellor {
 
   @override
   String toString() {
-    return 'Counsellor(userId: $userId, nickname: $nickname, comment: $comment, chatCount: $chatCount, reviewCount: $reviewCount, profileUrl: $profileUrl)';
+    return 'Counsellor(userId: $userId, nickname: $nickname, comment: $comment, notice: $notice, chatCount: $chatCount, reviewCount: $reviewCount, profileUrl: $profileUrl)';
   }
 
   @override
@@ -202,6 +218,7 @@ class _$CounsellorImpl implements _Counsellor {
             (identical(other.nickname, nickname) ||
                 other.nickname == nickname) &&
             (identical(other.comment, comment) || other.comment == comment) &&
+            (identical(other.notice, notice) || other.notice == notice) &&
             (identical(other.chatCount, chatCount) ||
                 other.chatCount == chatCount) &&
             (identical(other.reviewCount, reviewCount) ||
@@ -213,7 +230,7 @@ class _$CounsellorImpl implements _Counsellor {
   @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(runtimeType, userId, nickname, comment,
-      chatCount, reviewCount, profileUrl);
+      notice, chatCount, reviewCount, profileUrl);
 
   @JsonKey(ignore: true)
   @override
@@ -234,6 +251,7 @@ abstract class _Counsellor implements Counsellor {
       {required final String userId,
       required final String nickname,
       required final String comment,
+      required final String notice,
       required final int chatCount,
       required final int reviewCount,
       final String? profileUrl}) = _$CounsellorImpl;
@@ -247,6 +265,8 @@ abstract class _Counsellor implements Counsellor {
   String get nickname;
   @override
   String get comment;
+  @override
+  String get notice;
   @override
   int get chatCount;
   @override

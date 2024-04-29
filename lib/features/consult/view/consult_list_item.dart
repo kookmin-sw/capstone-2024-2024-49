@@ -43,9 +43,9 @@ class ConsultListItem extends StatelessWidget {
         context.push('/consult');
       },
       child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+        margin: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 1.0),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0),
+          borderRadius: BorderRadius.circular(0.0),
         ),
         elevation: 0.0,
         color: Colors.green[200],

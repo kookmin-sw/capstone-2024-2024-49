@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:luckymoon/config/theme/app_color.dart';
 import 'package:luckymoon/core/logger.dart';
 import 'package:luckymoon/data/Counsellor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -155,8 +156,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           nickname: nickname,
           comment: comment,
           chatCount: 0,
+          notice: '',
           reviewCount: 0,
-          profileUrl: imageUrl, 
+          profileUrl: imageUrl,
         );
 
         FirebaseFirestore.instance
@@ -279,7 +281,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           label: const Text('상담자 인증', style: TextStyle(fontSize: 16)),
           onPressed: () => becomeCounsellor(context, userId!),
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.deepPurple,
+            backgroundColor: ColorStyles.mainColor,
             foregroundColor: Colors.white,
             minimumSize: const Size(double.infinity, 50),
           ),

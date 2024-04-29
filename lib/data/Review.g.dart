@@ -11,8 +11,8 @@ _$ReviewImpl _$$ReviewImplFromJson(Map<String, dynamic> json) => _$ReviewImpl(
       userId: json['userId'] as String,
       nickname: json['nickname'] as String,
       comment: json['comment'] as String,
-      reply: json['reply'] as String,
-      profileUrl: json['profileUrl'] as String?,
+      timestamp:
+          const TimestampConverter().fromJson(json['timestamp'] as Timestamp),
     );
 
 Map<String, dynamic> _$$ReviewImplToJson(_$ReviewImpl instance) =>
@@ -21,6 +21,5 @@ Map<String, dynamic> _$$ReviewImplToJson(_$ReviewImpl instance) =>
       'userId': instance.userId,
       'nickname': instance.nickname,
       'comment': instance.comment,
-      'reply': instance.reply,
-      'profileUrl': instance.profileUrl,
+      'timestamp': const TimestampConverter().toJson(instance.timestamp),
     };

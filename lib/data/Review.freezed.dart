@@ -24,8 +24,8 @@ mixin _$Review {
   String get userId => throw _privateConstructorUsedError;
   String get nickname => throw _privateConstructorUsedError;
   String get comment => throw _privateConstructorUsedError;
-  String get reply => throw _privateConstructorUsedError;
-  String? get profileUrl => throw _privateConstructorUsedError;
+  @TimestampConverter()
+  DateTime get timestamp => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -42,8 +42,7 @@ abstract class $ReviewCopyWith<$Res> {
       String userId,
       String nickname,
       String comment,
-      String reply,
-      String? profileUrl});
+      @TimestampConverter() DateTime timestamp});
 }
 
 /// @nodoc
@@ -63,8 +62,7 @@ class _$ReviewCopyWithImpl<$Res, $Val extends Review>
     Object? userId = null,
     Object? nickname = null,
     Object? comment = null,
-    Object? reply = null,
-    Object? profileUrl = freezed,
+    Object? timestamp = null,
   }) {
     return _then(_value.copyWith(
       counsellorId: null == counsellorId
@@ -83,14 +81,10 @@ class _$ReviewCopyWithImpl<$Res, $Val extends Review>
           ? _value.comment
           : comment // ignore: cast_nullable_to_non_nullable
               as String,
-      reply: null == reply
-          ? _value.reply
-          : reply // ignore: cast_nullable_to_non_nullable
-              as String,
-      profileUrl: freezed == profileUrl
-          ? _value.profileUrl
-          : profileUrl // ignore: cast_nullable_to_non_nullable
-              as String?,
+      timestamp: null == timestamp
+          ? _value.timestamp
+          : timestamp // ignore: cast_nullable_to_non_nullable
+              as DateTime,
     ) as $Val);
   }
 }
@@ -107,8 +101,7 @@ abstract class _$$ReviewImplCopyWith<$Res> implements $ReviewCopyWith<$Res> {
       String userId,
       String nickname,
       String comment,
-      String reply,
-      String? profileUrl});
+      @TimestampConverter() DateTime timestamp});
 }
 
 /// @nodoc
@@ -126,8 +119,7 @@ class __$$ReviewImplCopyWithImpl<$Res>
     Object? userId = null,
     Object? nickname = null,
     Object? comment = null,
-    Object? reply = null,
-    Object? profileUrl = freezed,
+    Object? timestamp = null,
   }) {
     return _then(_$ReviewImpl(
       counsellorId: null == counsellorId
@@ -146,14 +138,10 @@ class __$$ReviewImplCopyWithImpl<$Res>
           ? _value.comment
           : comment // ignore: cast_nullable_to_non_nullable
               as String,
-      reply: null == reply
-          ? _value.reply
-          : reply // ignore: cast_nullable_to_non_nullable
-              as String,
-      profileUrl: freezed == profileUrl
-          ? _value.profileUrl
-          : profileUrl // ignore: cast_nullable_to_non_nullable
-              as String?,
+      timestamp: null == timestamp
+          ? _value.timestamp
+          : timestamp // ignore: cast_nullable_to_non_nullable
+              as DateTime,
     ));
   }
 }
@@ -166,8 +154,7 @@ class _$ReviewImpl implements _Review {
       required this.userId,
       required this.nickname,
       required this.comment,
-      required this.reply,
-      this.profileUrl});
+      @TimestampConverter() required this.timestamp});
 
   factory _$ReviewImpl.fromJson(Map<String, dynamic> json) =>
       _$$ReviewImplFromJson(json);
@@ -181,13 +168,12 @@ class _$ReviewImpl implements _Review {
   @override
   final String comment;
   @override
-  final String reply;
-  @override
-  final String? profileUrl;
+  @TimestampConverter()
+  final DateTime timestamp;
 
   @override
   String toString() {
-    return 'Review(counsellorId: $counsellorId, userId: $userId, nickname: $nickname, comment: $comment, reply: $reply, profileUrl: $profileUrl)';
+    return 'Review(counsellorId: $counsellorId, userId: $userId, nickname: $nickname, comment: $comment, timestamp: $timestamp)';
   }
 
   @override
@@ -201,15 +187,14 @@ class _$ReviewImpl implements _Review {
             (identical(other.nickname, nickname) ||
                 other.nickname == nickname) &&
             (identical(other.comment, comment) || other.comment == comment) &&
-            (identical(other.reply, reply) || other.reply == reply) &&
-            (identical(other.profileUrl, profileUrl) ||
-                other.profileUrl == profileUrl));
+            (identical(other.timestamp, timestamp) ||
+                other.timestamp == timestamp));
   }
 
   @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
-      runtimeType, counsellorId, userId, nickname, comment, reply, profileUrl);
+      runtimeType, counsellorId, userId, nickname, comment, timestamp);
 
   @JsonKey(ignore: true)
   @override
@@ -231,8 +216,7 @@ abstract class _Review implements Review {
       required final String userId,
       required final String nickname,
       required final String comment,
-      required final String reply,
-      final String? profileUrl}) = _$ReviewImpl;
+      @TimestampConverter() required final DateTime timestamp}) = _$ReviewImpl;
 
   factory _Review.fromJson(Map<String, dynamic> json) = _$ReviewImpl.fromJson;
 
@@ -245,9 +229,8 @@ abstract class _Review implements Review {
   @override
   String get comment;
   @override
-  String get reply;
-  @override
-  String? get profileUrl;
+  @TimestampConverter()
+  DateTime get timestamp;
   @override
   @JsonKey(ignore: true)
   _$$ReviewImplCopyWith<_$ReviewImpl> get copyWith =>

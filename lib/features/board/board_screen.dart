@@ -1,11 +1,12 @@
-import 'package:luckymoon/data/Counsellor.dart';
-import 'package:luckymoon/features/board/cubit/board_cubit.dart';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:luckymoon/data/Counsellor.dart';
+import 'package:luckymoon/features/board/cubit/board_cubit.dart';
+import '../../config/theme/app_color.dart';
 import '../../core/blank.dart';
 import '../../data/Review.dart';
-
 
 class BoardScreen extends StatefulWidget {
   const BoardScreen({Key? key}) : super(key: key);
@@ -24,54 +25,144 @@ class _BoardScreenState extends State<BoardScreen> {
     fetchReviews();
   }
 
-
-
-  // Firestore에서 리뷰 데이터를 가져오는 로직 (예시로 직접 데이터를 할당)
   Future<void> fetchReviews() async {
-    var fetchedReviews = [
-      {"nickname": "룰룰", "comment": "상담 좋습니다~!"},
-      {"nickname": "김사주", "comment": "감사합니다!!"},
-    ];
+    var fetchedReviews = List.generate(20, (index) => {
+      "counsellorId": "counsellor${index + 1}",
+      "userId": "user${index + 1}",
+      "nickname": "사용자${index + 1}",
+      "comment": "정말 도움이 많이 되었습니다. 감사합니다. ${index + 1}",
+      "reply": "소중한 후기 감사드립니다! ${index + 1}",
+      "profileUrl": index % 2 == 0 ? "http://example.com/profile${index + 1}.jpg" : null,
+    });
 
     setState(() {
       reviews = fetchedReviews.map((data) => Review.fromJson(data)).toList();
     });
   }
 
+
   @override
   Widget build(BuildContext context) {
-
     counsellor = context.read<BoardCubit>().getCounsellor();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('상담사 게시판'),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            CircleAvatar(
-              radius: 40,
-              backgroundImage: counsellor.profileUrl != null && counsellor.profileUrl!.isNotEmpty ? NetworkImage(counsellor.profileUrl!) : null,
-              child: counsellor.profileUrl == null || counsellor.profileUrl!.isEmpty ? const Icon(Icons.person, size: 40) : null,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            backgroundColor: ColorStyles.secondMainColor,
+            expandedHeight: 350.0,
+            floating: false,
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Image.network(
+                counsellor.profileUrl ?? '',
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => const Icon(Icons.person, size: 80),
+              ),
+              title: Text(counsellor.nickname),
+              titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
             ),
-            const Blank(0, 8),
-            Center(child: Text(counsellor.nickname)),
-            const Blank(0, 16),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: reviews.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(reviews[index].nickname),
-                  subtitle: Text(reviews[index].comment),
-                );
-              },
+          ),
+          SliverPersistentHeader(
+            delegate: _SliverAppBarDelegate(
+              minHeight: 50,
+              maxHeight: 50,
+              child: Container(
+                color: Colors.white,
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        const Text('누적후기 '),
+                        const Icon(Icons.chat_outlined, color: Colors.blue),
+                        Text(' (${counsellor.reviewCount})'),
+
+                        const Blank(20, 0),
+                        ElevatedButton.icon(
+                          icon: const Icon(Icons.add),
+                          label: const Text('후기작성'),
+                          onPressed: () {
+
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: ColorStyles.mainColor,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(0),
+                            ),
+                            elevation: 0,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Divider(height: 1, color: Color(0xFFEAEAEA)),
+                  ],
+                )
+              ),
             ),
-          ],
-        ),
+            pinned: true,
+          ),
+          SliverToBoxAdapter(
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 50, bottom: 50, left: 16, right: 16),
+                  child: Text("${counsellor.nickname} 님의 게시판 입니다."),
+                ),
+                const Divider(height: 1, color: Color(0xFFEAEAEA)),
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: reviews.length * 2 - 1,
+                  itemBuilder: (context, index) {
+                    if (index.isOdd) {
+                      return const Divider(height: 1, color: Color(0xFFEAEAEA));
+                    } else {
+                      final reviewIndex = index ~/ 2;
+                      return ListTile(
+                        title: Text(reviews[reviewIndex].nickname),
+                        subtitle: Text(reviews[reviewIndex].comment),
+                      );
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
+  }
+}
+
+class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
+  final double minHeight;
+  final double maxHeight;
+  final Widget child;
+
+  _SliverAppBarDelegate({
+    required this.minHeight,
+    required this.maxHeight,
+    required this.child,
+  });
+
+  @override
+  double get minExtent => minHeight;
+  @override
+  double get maxExtent => max(maxHeight, minHeight);
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return SizedBox.expand(child: child);
+  }
+
+  @override
+  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
+    return maxHeight != oldDelegate.maxHeight ||
+        minHeight != oldDelegate.minHeight ||
+        child != oldDelegate.child;
   }
 }

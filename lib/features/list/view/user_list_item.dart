@@ -22,9 +22,9 @@ class UserListItem extends StatelessWidget {
     return Column(
       children: [
         Card(
-          margin: EdgeInsets.zero,  // 마진 제거
+          margin: EdgeInsets.zero,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(0),  // 둥근 모서리 제거
+            borderRadius: BorderRadius.circular(0),
           ),
           elevation: 0,
           child: Padding(
@@ -51,7 +51,7 @@ class UserListItem extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: counsellor.profileUrl == null || counsellor.profileUrl!.isEmpty
-                        ? Icon(Icons.person, size: 80, color: Colors.white)
+                        ? const Icon(Icons.person, size: 80, color: Colors.white)
                         : null,
                   ),
                   Expanded(
@@ -63,13 +63,13 @@ class UserListItem extends StatelessWidget {
                         children: [
                           Text(
                             counsellor.nickname,
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                             overflow: TextOverflow.ellipsis,
                           ),
-                          Blank(0, 10),
+                          const Blank(0, 10),
                           Text(
                             counsellor.comment,
-                            style: TextStyle(fontSize: 13),
+                            style: const TextStyle(fontSize: 13),
                             overflow: TextOverflow.ellipsis,
                             maxLines: 2,
                           ),
@@ -77,7 +77,6 @@ class UserListItem extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // 상담 버튼 중앙 정렬
                   Align(
                     alignment: Alignment.centerRight,
                     child: ElevatedButton.icon(
@@ -88,13 +87,13 @@ class UserListItem extends StatelessWidget {
                         context.push('/chat');
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.deepOrange,
+                        backgroundColor: ColorStyles.mainColor,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        elevation: 4,
+                        elevation: 0,
                       ),
                     ),
                   ),
@@ -103,26 +102,31 @@ class UserListItem extends StatelessWidget {
             ),
           )
         ),
-        Divider(
+        const Divider(
           indent: 150,
           endIndent: 16,
           color: Color(0xFFEAEAEA),
           height: 1,
           thickness: 1,
         ),
-        // 리뷰 버튼 위치 조정
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Text('누적후기 '),
-              Icon(Icons.chat_outlined, color: ColorStyles.mainColor),
-              Text(' (${counsellor.reviewCount})'),
-            ],
+          child: InkWell(
+            onTap: () {
+              context.read<BoardCubit>().setCounsellor(counsellor);
+              context.push('/board');
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                const Text('누적후기 '),
+                const Icon(Icons.chat_outlined, color: ColorStyles.mainColor),
+                Text(' (${counsellor.reviewCount})'),
+              ],
+            ),
           ),
         ),
-        Divider(
+        const Divider(
           color: Color(0xFFEAEAEA),
           height: 10,
           thickness: 10,

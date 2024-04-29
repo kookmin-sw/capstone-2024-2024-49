@@ -43,15 +43,12 @@ class _UserListScreenState extends State<UserListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 0.65,
-      ),
+    return ListView.builder(
       itemCount: _counsellors.length,
       itemBuilder: (context, index) {
         return UserListItem(counsellor: _counsellors[index]);
       },
     );
   }
+
 }

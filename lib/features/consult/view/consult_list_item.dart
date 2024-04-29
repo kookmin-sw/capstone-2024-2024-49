@@ -47,7 +47,7 @@ class ConsultListItem extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0),
         ),
-        elevation: 5.0,
+        elevation: 0.0,
         color: Colors.green[200],
         child: Padding(
           padding: const EdgeInsets.all(16.0),

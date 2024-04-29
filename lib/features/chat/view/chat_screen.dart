@@ -29,6 +29,7 @@ class _ChatScreenState extends State<ChatScreen> {
   late Counsellor counsellor;
   late String userId;
   final TextEditingController _messageController = TextEditingController();
+  late ScrollController _scrollController;
   late List<Message> _messages = [];
   late ChatService chatService;
   late String chatRoomId;
@@ -38,6 +39,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     counsellor = context.read<ChatCubit>().getCounsellor();
+    _scrollController = ScrollController();
     initializeChat();
   }
 
@@ -95,6 +97,8 @@ class _ChatScreenState extends State<ChatScreen> {
           _messages = messageData;
         });
       });
+
+      _scrollToBottom();
     }
   }
 
@@ -124,6 +128,8 @@ class _ChatScreenState extends State<ChatScreen> {
         _messages.add(Message(sender: "user", text: _messageController.text, timestamp: DateTime.now()));
         _messageController.clear();
       });
+
+      _scrollToBottom();
     }
   }
 
@@ -177,7 +183,17 @@ class _ChatScreenState extends State<ChatScreen> {
         );
         isLoading = false;
       });
+
+      _scrollToBottom();
     }
+  }
+
+  void _scrollToBottom() {
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
   }
 
   @override
@@ -206,6 +222,7 @@ class _ChatScreenState extends State<ChatScreen> {
         children: <Widget>[
           Expanded(
             child: ListView.builder(
+              controller: _scrollController,
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 final message = _messages[index];

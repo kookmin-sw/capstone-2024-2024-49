@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:luckymoon/config/theme/app_color.dart';
 
 import '../../../core/blank.dart';
 import '../../../data/User.dart';
@@ -88,31 +89,43 @@ class _SignUpScreenState extends State<SignUpScreen> {
               decoration: const InputDecoration(
                 labelText: '아이디 *',
                 hintText: '영문, 숫자, _ 만 입력가능. 최소 3자 이상',
+                prefixIcon: Icon(Icons.person),
+                border: OutlineInputBorder(),
               ),
             ),
+            const Blank(0, 20),
             TextField(
               controller: _passwordController,
               decoration: const InputDecoration(
                 labelText: '비밀번호 *',
                 hintText: '비밀번호를 입력하세요.',
+                prefixIcon: Icon(Icons.lock),
+                border: OutlineInputBorder(),
               ),
               obscureText: true,
             ),
+            const Blank(0, 20),
             TextField(
               controller: _confirmPasswordController,
               decoration: const InputDecoration(
                 labelText: '비밀번호 확인 *',
                 hintText: '비밀번호를 한 번 더 입력하세요.',
+                prefixIcon: Icon(Icons.lock),
+                border: OutlineInputBorder(),
               ),
               obscureText: true,
             ),
+            const Blank(0, 20),
             TextField(
               controller: _nameController,
               decoration: const InputDecoration(
                 labelText: '닉네임 *',
                 hintText: '닉네임을 입력하세요',
+                prefixIcon: Icon(Icons.face),
+                border: OutlineInputBorder(),
               ),
             ),
+            const Blank(0, 20),
             Row(
               children: [
                 Checkbox(
@@ -134,6 +147,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
             const Blank(0, 20),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
+                backgroundColor: ColorStyles.mainColor,
+                foregroundColor: Colors.white,
+                shadowColor: Colors.blueAccent,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 minimumSize: const Size(double.infinity, 50),
               ),
               onPressed: _agreementChecked ? _signUp : null,

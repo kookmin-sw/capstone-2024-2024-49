@@ -12,7 +12,7 @@ _$ReviewImpl _$$ReviewImplFromJson(Map<String, dynamic> json) => _$ReviewImpl(
       nickname: json['nickname'] as String,
       comment: json['comment'] as String,
       timestamp:
-          const TimestampConverter().fromJson(json['timestamp'] as Timestamp),
+          const TimestampConverter().fromJson(json['timestamp'] as Timestamp?),
     );
 
 Map<String, dynamic> _$$ReviewImplToJson(_$ReviewImpl instance) =>

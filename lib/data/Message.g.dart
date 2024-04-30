@@ -12,7 +12,7 @@ _$MessageImpl _$$MessageImplFromJson(Map<String, dynamic> json) =>
       text: json['text'] as String,
       image: json['image'] as String?,
       timestamp:
-          const TimestampConverter().fromJson(json['timestamp'] as Timestamp),
+          const TimestampConverter().fromJson(json['timestamp'] as Timestamp?),
     );
 
 Map<String, dynamic> _$$MessageImplToJson(_$MessageImpl instance) =>
@@ -20,5 +20,12 @@ Map<String, dynamic> _$$MessageImplToJson(_$MessageImpl instance) =>
       'sender': instance.sender,
       'text': instance.text,
       'image': instance.image,
-      'timestamp': const TimestampConverter().toJson(instance.timestamp),
+      'timestamp': _$JsonConverterToJson<Timestamp?, DateTime>(
+          instance.timestamp, const TimestampConverter().toJson),
     };
+
+Json? _$JsonConverterToJson<Json, Value>(
+  Value? value,
+  Json? Function(Value value) toJson,
+) =>
+    value == null ? null : toJson(value);

@@ -90,16 +90,16 @@ class _ChatScreenState extends State<ChatScreen> {
       // 채팅방이 존재하는 경우 해당 채팅방의 메시지를 로드
       chatRoomId = chatQuery.docs.first.id;
       chatService = ChatService(chatRoomId);
-
-      var messageStream = chatService.getMessages();
-      messageStream.listen((messageData) {
-        setState(() {
-          _messages = messageData;
-        });
-      });
-
-      _scrollToBottom();
     }
+
+    var messageStream = chatService.getMessages();
+    messageStream.listen((messageData) {
+      setState(() {
+        _messages = messageData;
+      });
+    });
+
+    _scrollToBottom();
   }
 
   void _initializeChatMessages(Counsellor counsellor, ChatService chatService) {

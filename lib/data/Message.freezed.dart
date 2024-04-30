@@ -24,7 +24,7 @@ mixin _$Message {
   String get text => throw _privateConstructorUsedError;
   String? get image => throw _privateConstructorUsedError;
   @TimestampConverter()
-  DateTime get timestamp => throw _privateConstructorUsedError;
+  DateTime? get timestamp => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -40,7 +40,7 @@ abstract class $MessageCopyWith<$Res> {
       {String sender,
       String text,
       String? image,
-      @TimestampConverter() DateTime timestamp});
+      @TimestampConverter() DateTime? timestamp});
 }
 
 /// @nodoc
@@ -59,7 +59,7 @@ class _$MessageCopyWithImpl<$Res, $Val extends Message>
     Object? sender = null,
     Object? text = null,
     Object? image = freezed,
-    Object? timestamp = null,
+    Object? timestamp = freezed,
   }) {
     return _then(_value.copyWith(
       sender: null == sender
@@ -74,10 +74,10 @@ class _$MessageCopyWithImpl<$Res, $Val extends Message>
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
               as String?,
-      timestamp: null == timestamp
+      timestamp: freezed == timestamp
           ? _value.timestamp
           : timestamp // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
     ) as $Val);
   }
 }
@@ -93,7 +93,7 @@ abstract class _$$MessageImplCopyWith<$Res> implements $MessageCopyWith<$Res> {
       {String sender,
       String text,
       String? image,
-      @TimestampConverter() DateTime timestamp});
+      @TimestampConverter() DateTime? timestamp});
 }
 
 /// @nodoc
@@ -110,7 +110,7 @@ class __$$MessageImplCopyWithImpl<$Res>
     Object? sender = null,
     Object? text = null,
     Object? image = freezed,
-    Object? timestamp = null,
+    Object? timestamp = freezed,
   }) {
     return _then(_$MessageImpl(
       sender: null == sender
@@ -125,10 +125,10 @@ class __$$MessageImplCopyWithImpl<$Res>
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
               as String?,
-      timestamp: null == timestamp
+      timestamp: freezed == timestamp
           ? _value.timestamp
           : timestamp // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
     ));
   }
 }
@@ -153,7 +153,7 @@ class _$MessageImpl implements _Message {
   final String? image;
   @override
   @TimestampConverter()
-  final DateTime timestamp;
+  final DateTime? timestamp;
 
   @override
   String toString() {
@@ -192,10 +192,11 @@ class _$MessageImpl implements _Message {
 
 abstract class _Message implements Message {
   const factory _Message(
-      {required final String sender,
-      required final String text,
-      final String? image,
-      @TimestampConverter() required final DateTime timestamp}) = _$MessageImpl;
+          {required final String sender,
+          required final String text,
+          final String? image,
+          @TimestampConverter() required final DateTime? timestamp}) =
+      _$MessageImpl;
 
   factory _Message.fromJson(Map<String, dynamic> json) = _$MessageImpl.fromJson;
 
@@ -207,7 +208,7 @@ abstract class _Message implements Message {
   String? get image;
   @override
   @TimestampConverter()
-  DateTime get timestamp;
+  DateTime? get timestamp;
   @override
   @JsonKey(ignore: true)
   _$$MessageImplCopyWith<_$MessageImpl> get copyWith =>

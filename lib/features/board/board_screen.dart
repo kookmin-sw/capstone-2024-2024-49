@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:luckymoon/data/Counsellor.dart';
 import 'package:luckymoon/features/board/cubit/board_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,6 +30,7 @@ class _BoardScreenState extends State<BoardScreen> {
   @override
   void initState() {
     super.initState();
+    counsellor = context.read<BoardCubit>().getCounsellor();
     _getUserInfo();
     _fetchReviews();
     _commentController = TextEditingController();
@@ -67,17 +69,21 @@ class _BoardScreenState extends State<BoardScreen> {
   }
 
   Future<void> _fetchReviews() async {
-    var fetchedReviews = List.generate(20, (index) => {
-      "counsellorId": "counsellor${index + 1}",
-      "userId": "user${index + 1}",
-      "nickname": "사용자${index + 1}",
-      "comment": "정말 도움이 많이 되었습니다. 감사합니다. ${index + 1}",
-      "timestamp": Timestamp.fromDate(DateTime.now())
+    FirebaseFirestore.instance.collection('reviews')
+        .where('counsellorId', isEqualTo: counsellor.userId)
+        .get()
+        .then((snapshot) {
+      setState(() {
+        reviews = snapshot.docs
+            .map((doc) => Review.fromJson(doc.data()))
+            .toList();
+
+        reviews.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+      });
+    }).catchError((error) {
+      print('Error fetching chats: $error');
     });
 
-    setState(() {
-      reviews = fetchedReviews.map((data) => Review.fromJson(data)).toList();
-    });
   }
 
   void _writeReview() {
@@ -141,7 +147,10 @@ class _BoardScreenState extends State<BoardScreen> {
           // 문서가 존재하면 해당 문서의 reviewCount 값을 1 증가시킨 후 업데이트
           final docId = querySnapshot.docs.first.id;
           final currentReviewCount = querySnapshot.docs.first.get('reviewCount') as int;
-          FirebaseFirestore.instance.collection('counsellors').doc(docId).update({'reviewCount': currentReviewCount + 1});
+          FirebaseFirestore.instance.collection('counsellors').doc(docId).update({'reviewCount': currentReviewCount + 1}).then((value) {
+            // 모두 완료되면 fetch 및 refresh
+            _fetchReviews();
+          });
         }
       });
     }).catchError((error) {
@@ -155,7 +164,6 @@ class _BoardScreenState extends State<BoardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    counsellor = context.read<BoardCubit>().getCounsellor();
 
     return Scaffold(
       body: CustomScrollView(
@@ -188,7 +196,7 @@ class _BoardScreenState extends State<BoardScreen> {
                       children: [
                         const Text('누적후기 '),
                         const Icon(Icons.chat_outlined, color: Colors.blue),
-                        Text(' (${counsellor.reviewCount})'),
+                        Text(' (${reviews.length})'),
 
                         const Blank(20, 0),
                         ElevatedButton.icon(
@@ -227,15 +235,19 @@ class _BoardScreenState extends State<BoardScreen> {
                 ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: reviews.length * 2 - 1,
+                  itemCount: reviews.isNotEmpty ? reviews.length * 2 - 1 : 0,
                   itemBuilder: (context, index) {
                     if (index.isOdd) {
                       return const Divider(height: 1, color: Color(0xFFEAEAEA));
                     } else {
                       final reviewIndex = index ~/ 2;
                       return ListTile(
-                        title: Text(reviews[reviewIndex].nickname),
+                        title: Text(reviews[reviewIndex].nickname, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                         subtitle: Text(reviews[reviewIndex].comment),
+                        trailing: Text(
+                          DateFormat('M월 d일 HH:mm').format(reviews[reviewIndex].timestamp),
+                          style: const TextStyle(color: Colors.grey),
+                        ),
                       );
                     }
                   },

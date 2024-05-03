@@ -16,6 +16,7 @@ class UserListScreen extends StatefulWidget {
 
 class _UserListScreenState extends State<UserListScreen> {
   List<Counsellor> _counsellors = [];
+  String userId = "";
 
   @override
   void initState() {
@@ -26,10 +27,9 @@ class _UserListScreenState extends State<UserListScreen> {
   Future<void> _fetchCounsellors() async {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? userId = prefs.getString('userId');
+    userId = prefs.getString('userId')!;
 
     FirebaseFirestore.instance.collection('counsellors')
-        .where('userId', isNotEqualTo: userId)
         .get()
         .then((snapshot) {
       setState(() {
@@ -50,7 +50,7 @@ class _UserListScreenState extends State<UserListScreen> {
       child: ListView.builder(
         itemCount: _counsellors.length,
         itemBuilder: (context, index) {
-          return UserListItem(counsellor: _counsellors[index]);
+          return UserListItem(counsellor: _counsellors[index], userId: userId);
         },
       )
     );

@@ -11,10 +11,12 @@ import '../../../core/blank.dart';
 
 class UserListItem extends StatelessWidget {
   final Counsellor counsellor;
+  final String userId;
 
   const UserListItem({
     Key? key,
     required this.counsellor,
+    required this.userId,
   }) : super(key: key);
 
   @override
@@ -78,26 +80,27 @@ class UserListItem extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.chat_bubble_outline),
-                      label: const Text('상담'),
-                      onPressed: () {
-                        context.read<ChatCubit>().setCounsellor(counsellor);
-                        context.push('/chat');
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: ColorStyles.mainColor,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                  if (counsellor.userId != userId)
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.chat_bubble_outline),
+                        label: const Text('상담'),
+                        onPressed: () {
+                          context.read<ChatCubit>().setCounsellor(counsellor);
+                          context.push('/chat');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ColorStyles.mainColor,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          elevation: 0,
                         ),
-                        elevation: 0,
                       ),
                     ),
-                  ),
                 ],
               ),
             ),

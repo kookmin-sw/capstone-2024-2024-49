@@ -37,6 +37,13 @@ class _ChatScreenState extends State<ChatScreen> {
   late String chatRoomId;
   bool isLoading = false;
 
+  String name = "";
+  String gender = "남";
+  int age = 0;
+  int year = 0;
+  int month = 0;
+  int day = 0;
+
   @override
   void initState() {
     super.initState();
@@ -98,12 +105,12 @@ class _ChatScreenState extends State<ChatScreen> {
     messageStream.listen((messageData) {
       setState(() {
         _messages = messageData;
-        _scrollToBottom();
-      });
-    });
+        //_scrollToBottom();
 
-    Future.delayed(const Duration(milliseconds: 100), () {
-      _scrollToBottom();
+        Future.delayed(const Duration(milliseconds: 10), () {
+          _scrollToBottom();
+        });
+      });
     });
   }
 
@@ -218,12 +225,9 @@ class _ChatScreenState extends State<ChatScreen> {
   void _showBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       builder: (BuildContext context) {
-        String gender = "남";
-        int age = 0;
-        int year = 0;
-        int month = 0;
-        int day = 0;
+
         return StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
           return Container(
             padding: const EdgeInsets.all(20),
@@ -233,6 +237,32 @@ class _ChatScreenState extends State<ChatScreen> {
                 const Blank(0, 20),
                 const Text("상담 폼 입력", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 const Blank(0, 50),
+                Row(
+                  children: [
+                    const Text("이름 : ", style: TextStyle(fontSize: 18)),
+                    const Blank(55, 0),
+                    Expanded(
+                      flex: 1,
+                      child: TextField(
+                        keyboardType: TextInputType.text,
+                        decoration: const InputDecoration(
+                            labelText: '',
+                            border: OutlineInputBorder()
+                        ),
+                        onChanged: (value) {
+                          if (value.isNotEmpty) {
+                            try {
+                              setState(() => name = value);
+                            } catch (e) {
+                              print("숫자만 입력해주세요.");
+                            }
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const Blank(0, 15),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -276,11 +306,12 @@ class _ChatScreenState extends State<ChatScreen> {
                         keyboardType: TextInputType.number,
                         decoration: const InputDecoration(
                           labelText: '',
+                          border: OutlineInputBorder()
                         ),
                         onChanged: (value) {
                           if (value.isNotEmpty) {
                             try {
-                              age = int.parse(value);
+                              setState(() => age = int.parse(value));
                             } catch (e) {
                               print("숫자만 입력해주세요.");
                             }
@@ -301,11 +332,12 @@ class _ChatScreenState extends State<ChatScreen> {
                         keyboardType: TextInputType.number,
                         decoration: const InputDecoration(
                           labelText: '년도',
+                          border: OutlineInputBorder()
                         ),
                         onChanged: (value) {
                           if (value.isNotEmpty) {
                             try {
-                              year = int.parse(value);
+                              setState(() => year = int.parse(value));
                             } catch (e) {
                               print("숫자만 입력해주세요.");
                             }
@@ -313,17 +345,19 @@ class _ChatScreenState extends State<ChatScreen> {
                         },
                       ),
                     ),
+                    const Blank(10, 0),
                     Expanded(
                       flex: 1,
                       child: TextField(
                         keyboardType: TextInputType.number,
                         decoration: const InputDecoration(
                           labelText: '월',
+                          border: OutlineInputBorder()
                         ),
                         onChanged: (value) {
                           if (value.isNotEmpty) {
                             try {
-                              month = int.parse(value);
+                              setState(() => month = int.parse(value));
                             } catch (e) {
                               print("숫자만 입력해주세요.");
                             }
@@ -331,17 +365,19 @@ class _ChatScreenState extends State<ChatScreen> {
                         },
                       ),
                     ),
+                    const Blank(10, 0),
                     Expanded(
                       flex: 1,
                       child: TextField(
                         keyboardType: TextInputType.number,
                         decoration: const InputDecoration(
                           labelText: '일',
+                          border: OutlineInputBorder()
                         ),
                         onChanged: (value) {
                           if (value.isNotEmpty) {
                             try {
-                              day = int.parse(value);
+                              setState(() => day = int.parse(value));
                             } catch (e) {
                               print("숫자만 입력해주세요.");
                             }
@@ -352,25 +388,25 @@ class _ChatScreenState extends State<ChatScreen> {
                   ],
                 ),
 
-                const Blank(0, 70),
+                const Blank(0, 40),
                 Align(
                   alignment: Alignment.bottomRight,
                   child: ElevatedButton(
                     onPressed: () {
-                      if (age.isNaN || year.isNaN || month.isNaN || day.isNaN
-                          || age < 1 || year > 2024 || month > 12 || month < 1
-                          || day > 31 || day < 1) {
+                      logger.e("date time : $year.$month.$day");
+                      DateTime date = DateTime(year, month, day);
+                      if (date.year == year && date.month == month && date.day == day) {
+
+                        String consultForm = "$name,$gender,$age,$year,$month,$day";
+                        _saveConsultForm(consultForm);
+                        _sendFormMessage();
+
+                        Navigator.pop(context);
+                        _sendMessage();
+                      } else {
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('유효한 값을 입력해주세요.')));
-                        return;
                       }
-
-                      String consultForm = "$gender,$age,${year},${month},${day}";
-                      _saveConsultForm(consultForm);
-                      _sendFormMessage();
-
-                      Navigator.pop(context);
-                      _sendMessage();
                     },
                     style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all<Color>(ColorStyles.mainColor),

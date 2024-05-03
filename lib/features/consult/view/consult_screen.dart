@@ -10,15 +10,21 @@ import 'package:luckymoon/data/Message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:luckymoon/features/chat/cubit/chat_cubit.dart';
+import '../../../core/blank.dart';
+import '../../chat/cubit/chat_cubit.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image/image.dart' as Img;
+import 'package:klc/klc.dart';
 
 import '../../../data/Counsellor.dart';
 import '../../../data/User.dart';
 import '../../chat/chat_service.dart';
 import '../cubit/consult_cubit.dart';
+
+final List<String> zodiac = ['쥐', '소', '호랑이', '토끼', '용', '뱀', '말', '양', '원숭이', '닭', '개', '돼지'];
+final List<String> constellation = ['천귀', '천액', '천권', '천파', '천간', '천문', '천복', '천역', '천고', '천인', '천예', '천수'];
+final List<String> fiveelements = ['수', '토', '목', '목', '토', '화', '화', '토', '금', '금', '토', '수'];
 
 class ConsultScreen extends StatefulWidget {
   const ConsultScreen({Key? key}) : super(key: key);
@@ -36,6 +42,23 @@ class _ConsultScreenState extends State<ConsultScreen> {
   late ChatService chatService;
   late String chatRoomId;
   bool isLoading = false;
+  bool isShowConsultForm = false;
+  bool isShowConsultDetail = false;
+
+  // 상담폼 value
+  var name = "";
+  var gender = "";
+  var age = "";
+  var ddi = "";
+  var lunarYear = 0;
+  var lunarMonth = 0;
+  var lunarDay = 0;
+  var constellation1 = "";
+  var fiveelement1 = "";
+  var constellation2 = "";
+  var fiveelement2 = "";
+  var constellation3 = "";
+  var fiveelement3 = "";
 
   @override
   void initState() {
@@ -48,6 +71,7 @@ class _ConsultScreenState extends State<ConsultScreen> {
   Future<void> initializeChat() async {
     await _getUser();
     await _initChat();
+    _getConsultForm();
   }
 
   Future<void> _getUser() async {
@@ -61,10 +85,9 @@ class _ConsultScreenState extends State<ConsultScreen> {
   }
 
   Future<void> _initChat() async {
-    final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
     // 채팅방 조회
-    var chatQuery = await firestore.collection('chats')
+    var chatQuery = await FirebaseFirestore.instance.collection('chats')
         .where('userId', isEqualTo: user.userId)
         .where('counsellorId', isEqualTo: counsellorId)
         .where('isClosed', isEqualTo: false)
@@ -78,13 +101,84 @@ class _ConsultScreenState extends State<ConsultScreen> {
     messageStream.listen((messageData) {
       setState(() {
         _messages = messageData;
-        _scrollToBottom();
+
+        if (_messages.last.text.contains("내담자") && _messages.last.sender == "system") {
+          _getConsultForm();
+        }
+
+        Future.delayed(const Duration(milliseconds: 10), () {
+          _scrollToBottom();
+        });
       });
     });
 
-    Future.delayed(const Duration(milliseconds: 100), () {
-      _scrollToBottom();
+
+  }
+
+  // 내담자의 입력폼 완료 메시지가 뜨면 consultForm 로딩 후 변환
+  void _getConsultForm() {
+
+    FirebaseFirestore.instance.collection('chats')
+        .where('userId', isEqualTo: user.userId)
+        .where('counsellorId', isEqualTo: counsellorId)
+        .where('isClosed', isEqualTo: false)
+        .limit(1)
+        .get().then((querySnapshot) {
+
+      if (querySnapshot.docs.isNotEmpty) {
+        var data = querySnapshot.docs.first.data();
+        String? consultForm = data['consultForm'] as String?;
+
+        if (consultForm != null) {
+          // consultForm 필드가 존재하면 생성
+          setState(() {
+            isShowConsultForm = true;
+          });
+          _generateConsultForm(consultForm);
+        } else {
+          logger.e("내담자 입력 폼이 없음");
+        }
+      } else {
+        logger.e("해당되는 채팅방이 없음");
+      }
     });
+
+  }
+
+  void _generateConsultForm(String consultForm) {
+    var inputs = consultForm.split(",");
+    name = inputs[0];
+    gender = inputs[1];
+    age = inputs[2];
+    var year = inputs[3];
+    var month = inputs[4];
+    var day = inputs[5];
+
+    // 음력 계산
+    setSolarDate(int.parse(year), int.parse(month), int.parse(day));
+    final lunar = getLunarIsoFormat();
+
+    lunarYear = int.parse(lunar.split("-")[0]);
+    lunarMonth = int.parse(lunar.split("-")[1]);
+    lunarDay = int.parse(lunar.split("-")[2]);
+
+    var index1 = (lunarYear - 1900) % 12;
+    ddi = "${zodiac[index1]}띠";
+    constellation1 = constellation[index1];
+    fiveelement1 = fiveelements[index1];
+
+    var index2 = (index1 + lunarMonth - 1) % 12;
+    constellation2 = constellation[index2];
+    fiveelement2 = fiveelements[index2];
+
+    var index3 = (index2 + lunarDay) % 12;
+    constellation3 = constellation[index3];
+    fiveelement3 = fiveelements[index3];
+
+    logger.d("성별 : $gender, 나이 : $age");
+    logger.d("음력 생년월일 : $lunar");
+    logger.d("constellation : $constellation1, $constellation2, $constellation3");
+    logger.d("fiveelement : $fiveelement1, $fiveelement2, $fiveelement3");
   }
 
   void _sendMessage() {
@@ -110,7 +204,6 @@ class _ConsultScreenState extends State<ConsultScreen> {
       isLoading = true;
     });
 
-    logger.e("============> imageFile $imageFile");
     // 선택된 이미지를 Firestore에 업로드
     String imageUrl = '';
     if (imageFile != null) {
@@ -173,154 +266,204 @@ class _ConsultScreenState extends State<ConsultScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('상담사 채팅방'),
-        backgroundColor: Colors.green[200]
-      ),
-      body: Container(
-        color: ColorStyles.messageColor,
-        child: Column(
-          children: <Widget>[
-            Expanded(
-              child: ListView.builder(
-                controller: _scrollController,
-                itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  final message = _messages[index];
-                  bool isUser = message.sender == 'user';
-
-                  if (message.sender == 'system') {
-                    return Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Text(message.text!, style: const TextStyle(fontSize: 14, color: Colors.white)),
-                      ),
-                    );
-                  }
-
-                  return Align(
-                    alignment: isUser ? Alignment.centerLeft : Alignment.centerRight,
-                    child: Row(
-                      mainAxisAlignment: isUser ? MainAxisAlignment.start : MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        if (isUser)
-                          const CircleAvatar(
-                            radius: 24,
-                            backgroundImage: null,
-                            child: Icon(Icons.person, size: 24),
-                          ),
-                        if (isUser)
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(left: 10),
-                                child: Text(
-                                  user.nickname,
-                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                              if (message.text.isNotEmpty) // 메시지의 텍스트가 있는 경우 텍스트를 보여줌
-                                Container(
-                                  margin: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 10),
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[300],
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    message.text!,
-                                    style: const TextStyle(color: Colors.black),
-                                  ),
-                                ),
-                              if (message.text.isEmpty && message.image != null) // 이미지 URL이 있는 경우 이미지를 보여줌
-                                Container(
-                                  margin: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 10),
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[300],
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: ConstrainedBox(
-                                    constraints: BoxConstraints(
-                                      maxWidth: 300,
-                                    ),
-                                    child: Image.network(
-                                      message.image!,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        if(!isUser)
-                          Container(
-                            margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 5),
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.yellow[600],
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(
-                                maxWidth: 300,
-                              ),
-                              child: message.text.isNotEmpty ?
-                              Text(
-                                message.text,
-                                style: const TextStyle(color: Colors.black),
-                              ) :
-                              (message.image != null ?
-                              Image.network(
-                                message.image!,
-                                fit: BoxFit.cover,
-                              ) :
-                              const Text("No content")
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  );
-                },
+        backgroundColor: Colors.green[200],
+        actions: <Widget>[
+          if (isShowConsultForm)
+            ElevatedButton.icon(
+              label: const Text("내담자 입력폼", style: TextStyle(color: Colors.black),),
+              icon: Icon(isShowConsultDetail ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                color: Colors.black,),
+              onPressed: () {
+                setState(() {
+                  isShowConsultDetail = !isShowConsultDetail;
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                disabledBackgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                enableFeedback: false,
+                surfaceTintColor: Colors.transparent,
+                elevation: 0,
               ),
             ),
-            if (isLoading)
-              const Center(child: CircularProgressIndicator()),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: <Widget>[
-                  IconButton(
-                    onPressed: () {
-                      _pickImage();
-                    },
-                    icon: const Icon(Icons.attach_file),
-                    color: Colors.black,
-                  ),
-                  Expanded(
-                    child: TextField(
-                      controller: _messageController,
-                      decoration: InputDecoration(
-                        hintText: '메시지 입력',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
+        ],
+      ),
+      body: Stack(
+        children: [
+          Container(
+            color: ColorStyles.messageColor,
+            child: Column(
+              children: <Widget>[
+                Expanded(
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    itemCount: _messages.length,
+                    itemBuilder: (context, index) {
+                      final message = _messages[index];
+                      bool isUser = message.sender == 'user';
+
+                      if (message.sender == 'system') {
+                        return Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Text(message.text!, style: const TextStyle(fontSize: 14, color: Colors.white)),
+                          ),
+                        );
+                      }
+
+                      return Align(
+                        alignment: isUser ? Alignment.centerLeft : Alignment.centerRight,
+                        child: Row(
+                          mainAxisAlignment: isUser ? MainAxisAlignment.start : MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            if (isUser)
+                              const CircleAvatar(
+                                radius: 24,
+                                backgroundImage: null,
+                                child: Icon(Icons.person, size: 24),
+                              ),
+                            if (isUser)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 10),
+                                    child: Text(
+                                      user.nickname,
+                                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                  if (message.text.isNotEmpty) // 메시지의 텍스트가 있는 경우 텍스트를 보여줌
+                                    Container(
+                                      margin: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 10),
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[300],
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        message.text!,
+                                        style: const TextStyle(color: Colors.black),
+                                      ),
+                                    ),
+                                  if (message.text.isEmpty && message.image != null) // 이미지 URL이 있는 경우 이미지를 보여줌
+                                    Container(
+                                      margin: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 10),
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[300],
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: ConstrainedBox(
+                                        constraints: const BoxConstraints(
+                                          maxWidth: 300,
+                                        ),
+                                        child: Image.network(
+                                          message.image!,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            if(!isUser)
+                              Container(
+                                margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 5),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.yellow[600],
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(
+                                    maxWidth: 300,
+                                  ),
+                                  child: message.text.isNotEmpty ?
+                                  Text(
+                                    message.text,
+                                    style: const TextStyle(color: Colors.black),
+                                  ) :
+                                  (message.image != null ?
+                                  Image.network(
+                                    message.image!,
+                                    fit: BoxFit.cover,
+                                  ) :
+                                  const Text("No content")
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
-                        filled: true,
-                        fillColor: Colors.white,
+                      );
+                    },
+                  ),
+                ),
+                if (isLoading)
+                  const Center(child: CircularProgressIndicator()),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: <Widget>[
+                      IconButton(
+                        onPressed: () {
+                          _pickImage();
+                        },
+                        icon: const Icon(Icons.attach_file),
+                        color: Colors.black,
                       ),
-                    ),
+                      Expanded(
+                        child: TextField(
+                          controller: _messageController,
+                          decoration: InputDecoration(
+                            hintText: '메시지 입력',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: _sendMessage,
+                        icon: const Icon(Icons.send),
+                        color: Colors.black,
+                      ),
+                    ],
                   ),
-                  IconButton(
-                    onPressed: _sendMessage,
-                    icon: const Icon(Icons.send),
-                    color: Colors.black,
-                  ),
+                ),
+              ],
+            ),
+          ),
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            top: isShowConsultDetail ? 0 : -300,
+            right: 0,
+            left: 0,
+            child: Container(
+              color: ColorStyles.secondMainColor,
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                children: [
+                  const Text("[인적사항]"),
+                  const Blank(0, 10),
+                  Text("이름 : $name,  성별 : $gender,  나이 : $age"),
+                  const Blank(0, 10),
+                  Text("생년월일 (음력) : $lunarYear년 $lunarMonth월 $lunarDay일 ($ddi)"),
+                  const Blank(0, 20),
+                  const Text("[사주정보]"),
+                  const Blank(0, 10),
+                  Text("$constellation1  $constellation2  $constellation3"),
+                  Text("$fiveelement1  $fiveelement2  $fiveelement3"),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
+          ),
+        ],
+      )
     );
   }
 }

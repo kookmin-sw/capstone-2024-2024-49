@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:luckymoon/config/theme/app_color.dart';
 import 'package:luckymoon/core/logger.dart';
 import 'package:luckymoon/data/Message.dart';
 import 'package:flutter/material.dart';
@@ -153,147 +154,150 @@ class _ConsultScreenState extends State<ConsultScreen> {
         title: const Text('상담사 채팅방'),
         backgroundColor: Colors.green[200]
       ),
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            child: ListView.builder(
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final message = _messages[index];
-                bool isUser = message.sender == 'user';
+      body: Container(
+        color: ColorStyles.messageColor,
+        child: Column(
+          children: <Widget>[
+            Expanded(
+              child: ListView.builder(
+                itemCount: _messages.length,
+                itemBuilder: (context, index) {
+                  final message = _messages[index];
+                  bool isUser = message.sender == 'user';
 
-                if (message.sender == 'system') {
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Text(message.text!, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                  if (message.sender == 'system') {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Text(message.text!, style: const TextStyle(fontSize: 14, color: Colors.white)),
+                      ),
+                    );
+                  }
+
+                  return Align(
+                    alignment: isUser ? Alignment.centerLeft : Alignment.centerRight,
+                    child: Row(
+                      mainAxisAlignment: isUser ? MainAxisAlignment.start : MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        if (isUser)
+                          const CircleAvatar(
+                            radius: 24,
+                            backgroundImage: null,
+                            child: Icon(Icons.person, size: 24),
+                          ),
+                        if (isUser)
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(left: 10),
+                                child: Text(
+                                  user.nickname,
+                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              if (message.text.isNotEmpty) // 메시지의 텍스트가 있는 경우 텍스트를 보여줌
+                                Container(
+                                  margin: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 10),
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[300],
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    message.text!,
+                                    style: const TextStyle(color: Colors.black),
+                                  ),
+                                ),
+                              if (message.text.isEmpty && message.image != null) // 이미지 URL이 있는 경우 이미지를 보여줌
+                                Container(
+                                  margin: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 10),
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[300],
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                      maxWidth: 300,
+                                    ),
+                                    child: Image.network(
+                                      message.image!,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        if(!isUser)
+                          Container(
+                            margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 5),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.yellow[600],
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxWidth: 300,
+                              ),
+                              child: message.text.isNotEmpty ?
+                              Text(
+                                message.text,
+                                style: const TextStyle(color: Colors.black),
+                              ) :
+                              (message.image != null ?
+                              Image.network(
+                                message.image!,
+                                fit: BoxFit.cover,
+                              ) :
+                              const Text("No content")
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   );
-                }
-
-                return Align(
-                  alignment: isUser ? Alignment.centerLeft : Alignment.centerRight,
-                  child: Row(
-                    mainAxisAlignment: isUser ? MainAxisAlignment.start : MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      if (isUser)
-                        const CircleAvatar(
-                          radius: 24,
-                          backgroundImage: null,
-                          child: Icon(Icons.person, size: 24),
-                        ),
-                      if (isUser)
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(left: 10),
-                              child: Text(
-                                user.nickname,
-                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                            if (message.text.isNotEmpty) // 메시지의 텍스트가 있는 경우 텍스트를 보여줌
-                              Container(
-                                margin: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 10),
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[300],
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  message.text!,
-                                  style: const TextStyle(color: Colors.black),
-                                ),
-                              ),
-                            if (message.text.isEmpty && message.image != null) // 이미지 URL이 있는 경우 이미지를 보여줌
-                              Container(
-                                margin: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 10),
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[300],
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: ConstrainedBox(
-                                  constraints: BoxConstraints(
-                                    maxWidth: 300,
-                                  ),
-                                  child: Image.network(
-                                    message.image!,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      if(!isUser)
-                        Container(
-                          margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 5),
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.yellow[600],
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              maxWidth: 300,
-                            ),
-                            child: message.text.isNotEmpty ?
-                            Text(
-                              message.text,
-                              style: const TextStyle(color: Colors.black),
-                            ) :
-                            (message.image != null ?
-                            Image.network(
-                              message.image!,
-                              fit: BoxFit.cover,
-                            ) :
-                            const Text("No content")
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                );
-              },
+                },
+              ),
             ),
-          ),
-          if (isLoading)
-            const Center(child: CircularProgressIndicator()),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: <Widget>[
-                IconButton(
-                  onPressed: () {
-                    _pickImage();
-                  },
-                  icon: const Icon(Icons.attach_file),
-                  color: Colors.black,
-                ),
-                Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: InputDecoration(
-                      hintText: '메시지 입력',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
+            if (isLoading)
+              const Center(child: CircularProgressIndicator()),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: <Widget>[
+                  IconButton(
+                    onPressed: () {
+                      _pickImage();
+                    },
+                    icon: const Icon(Icons.attach_file),
+                    color: Colors.black,
+                  ),
+                  Expanded(
+                    child: TextField(
+                      controller: _messageController,
+                      decoration: InputDecoration(
+                        hintText: '메시지 입력',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
                       ),
-                      filled: true,
-                      fillColor: Colors.white,
                     ),
                   ),
-                ),
-                IconButton(
-                  onPressed: _sendMessage,
-                  icon: const Icon(Icons.send),
-                  color: Colors.black,
-                ),
-              ],
+                  IconButton(
+                    onPressed: _sendMessage,
+                    icon: const Icon(Icons.send),
+                    color: Colors.black,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -63,79 +63,77 @@ class _LoginPageState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: ColorStyles.backgroundColor,
         title: const Text(""),
+        elevation: 0,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const FlutterLogo(size: 100),
-              const Blank(0, 48),
-              TextField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: '아이디 입력',
-                  hintText: '',
-                  prefixIcon: Icon(Icons.person),
-                  border: OutlineInputBorder(),
+      body: Container(
+        color: ColorStyles.backgroundColor,
+        height: MediaQuery.of(context).size.height,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Image.asset(
+                  'images/ic_logo.png',
+                  width: 200,
+                  height: 200,
                 ),
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const Blank(0, 20),
-              TextField(
-                controller: _passwordController,
-                decoration: const InputDecoration(
-                  labelText: '비밀번호 입력',
-                  hintText: '',
-                  prefixIcon: Icon(Icons.lock),
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
-              ),
-              Row(
-                children: [
-                  Checkbox(
-                    value: _isRememberMeChecked,
-                    onChanged: (bool? newValue) {
-                      setState(() {
-                        _isRememberMeChecked = newValue ?? false;
-                      });
-                    },
+                const Text("무꾸리", style: TextStyle(fontSize: 25),),
+                const Blank(0, 100),
+                TextField(
+                  controller: _emailController,
+                  decoration: const InputDecoration(
+                    labelText: '아이디 입력',
+                    hintText: '',
+                    prefixIcon: Icon(Icons.person),
+                    border: OutlineInputBorder(),
                   ),
-                  const Text('로그인 상태 유지'),
-                ],
-              ),
-              const Blank(0, 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: ColorStyles.mainColor,
-                  foregroundColor: Colors.white,
-                  shadowColor: Colors.blueAccent,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  minimumSize: const Size(double.infinity, 50),
+                  keyboardType: TextInputType.emailAddress,
                 ),
-                onPressed: _login,
-                child: const Text('로그인'),
-              ),
-              const Blank(0, 20),
-              InkWell(
-                onTap: () {
-                  context.push("/login/signup");
-                },
-                child: const Text(
-                  '회원가입',
-                  style: TextStyle(
-                    decoration: TextDecoration.underline,
-                    color: Colors.blue,
+                const Blank(0, 20),
+                TextField(
+                  controller: _passwordController,
+                  decoration: const InputDecoration(
+                    labelText: '비밀번호 입력',
+                    hintText: '',
+                    prefixIcon: Icon(Icons.lock),
+                    border: OutlineInputBorder(),
+                  ),
+                  obscureText: true,
+                ),
+                const Blank(0, 60),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: ColorStyles.mainColor,
+                    foregroundColor: Colors.white,
+                    shadowColor: Colors.blueAccent,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
+                  onPressed: _login,
+                  child: const Text('로그인'),
+                ),
+                const Blank(0, 20),
+                InkWell(
+                  onTap: () {
+                    context.push("/login/signup");
+                  },
+                  child: const Text(
+                    '회원가입',
+                    style: TextStyle(
+                      decoration: TextDecoration.underline,
+                      color: Colors.blue,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
+      )
     );
   }
 

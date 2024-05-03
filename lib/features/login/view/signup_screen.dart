@@ -77,88 +77,94 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: ColorStyles.backgroundColor,
         title: const Text('회원가입'),
+        elevation: 0,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            TextField(
-              controller: _userIdController,
-              decoration: const InputDecoration(
-                labelText: '아이디 *',
-                hintText: '영문, 숫자, _ 만 입력가능. 최소 3자 이상',
-                prefixIcon: Icon(Icons.person),
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const Blank(0, 20),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(
-                labelText: '비밀번호 *',
-                hintText: '비밀번호를 입력하세요.',
-                prefixIcon: Icon(Icons.lock),
-                border: OutlineInputBorder(),
-              ),
-              obscureText: true,
-            ),
-            const Blank(0, 20),
-            TextField(
-              controller: _confirmPasswordController,
-              decoration: const InputDecoration(
-                labelText: '비밀번호 확인 *',
-                hintText: '비밀번호를 한 번 더 입력하세요.',
-                prefixIcon: Icon(Icons.lock),
-                border: OutlineInputBorder(),
-              ),
-              obscureText: true,
-            ),
-            const Blank(0, 20),
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: '닉네임 *',
-                hintText: '닉네임을 입력하세요',
-                prefixIcon: Icon(Icons.face),
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const Blank(0, 20),
-            Row(
-              children: [
-                Checkbox(
-                  value: _agreementChecked,
-                  onChanged: (bool? value) {
-                    setState(() {
-                      _agreementChecked = value ?? false;
-                    });
-                  },
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        color: ColorStyles.backgroundColor,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              TextField(
+                controller: _userIdController,
+                decoration: const InputDecoration(
+                  labelText: '아이디 *',
+                  hintText: '영문, 숫자, _ 만 입력가능. 최소 3자 이상',
+                  prefixIcon: Icon(Icons.person),
+                  border: OutlineInputBorder(),
                 ),
-                Expanded(
-                  child: Text(
-                    '사용자약관 및 개인정보처리방침에 동의합니다.',
-                    style: Theme.of(context).textTheme.subtitle1,
+              ),
+              const Blank(0, 20),
+              TextField(
+                controller: _passwordController,
+                decoration: const InputDecoration(
+                  labelText: '비밀번호 *',
+                  hintText: '비밀번호를 입력하세요.',
+                  prefixIcon: Icon(Icons.lock),
+                  border: OutlineInputBorder(),
+                ),
+                obscureText: true,
+              ),
+              const Blank(0, 20),
+              TextField(
+                controller: _confirmPasswordController,
+                decoration: const InputDecoration(
+                  labelText: '비밀번호 확인 *',
+                  hintText: '비밀번호를 한 번 더 입력하세요.',
+                  prefixIcon: Icon(Icons.lock),
+                  border: OutlineInputBorder(),
+                ),
+                obscureText: true,
+              ),
+              const Blank(0, 20),
+              TextField(
+                controller: _nameController,
+                decoration: const InputDecoration(
+                  labelText: '닉네임 *',
+                  hintText: '닉네임을 입력하세요',
+                  prefixIcon: Icon(Icons.face),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const Blank(0, 20),
+              Row(
+                children: [
+                  Checkbox(
+                    value: _agreementChecked,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        _agreementChecked = value ?? false;
+                      });
+                    },
                   ),
-                ),
-              ],
-            ),
-            const Blank(0, 20),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: ColorStyles.mainColor,
-                foregroundColor: Colors.white,
-                shadowColor: Colors.blueAccent,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                minimumSize: const Size(double.infinity, 50),
+                  Expanded(
+                    child: Text(
+                      '사용자약관 및 개인정보처리방침에 동의합니다.',
+                      style: Theme.of(context).textTheme.subtitle1,
+                    ),
+                  ),
+                ],
               ),
-              onPressed: _agreementChecked ? _signUp : null,
-              child: const Text('동의하고 회원가입', style: TextStyle(fontSize: 18)),
-            ),
-          ],
+              const Blank(0, 20),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: ColorStyles.mainColor,
+                  foregroundColor: Colors.white,
+                  shadowColor: Colors.blueAccent,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+                onPressed: _agreementChecked ? _signUp : null,
+                child: const Text('동의하고 회원가입', style: TextStyle(fontSize: 18)),
+              ),
+            ],
+          ),
         ),
-      ),
+      )
     );
   }
 }

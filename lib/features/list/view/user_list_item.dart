@@ -22,6 +22,7 @@ class UserListItem extends StatelessWidget {
     return Column(
       children: [
         Card(
+          color: ColorStyles.backgroundColor,
           margin: EdgeInsets.zero,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(0),
@@ -105,7 +106,7 @@ class UserListItem extends StatelessWidget {
         const Divider(
           indent: 150,
           endIndent: 16,
-          color: Color(0xFFEAEAEA),
+          color: Color(0xFFFFFFFF),
           height: 1,
           thickness: 1,
         ),
@@ -127,7 +128,7 @@ class UserListItem extends StatelessWidget {
           ),
         ),
         const Divider(
-          color: Color(0xFFEAEAEA),
+          color: Color(0xFFFFFFFF),
           height: 10,
           thickness: 10,
         ),

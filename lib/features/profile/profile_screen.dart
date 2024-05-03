@@ -242,7 +242,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
-            child: Text('상담자 메뉴', style: TextStyle(fontSize: 16, color: Colors.grey)),
+            child: Text('상담자 메뉴', style: TextStyle(fontSize: 16, color: Colors.white)),
           ),
           InkWell(
             onTap: () {
@@ -297,25 +297,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _getUserInfo();
 
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: _buildAccountSection(),
-            ),
-            const Divider(color: Color(0xFFEAEAEA), thickness: 10),
-            Padding(
-              padding: const EdgeInsets.all(0.0),
-              child: _buildCounsellorSection(),
-            ),
-            const Divider(color: Color(0xFFEAEAEA), thickness: 10),
-            if (isLoading) // 로딩 인디케이터 표시
-              const Center(child: CircularProgressIndicator())
-          ],
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        color: ColorStyles.backgroundColor,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: _buildAccountSection(),
+              ),
+              const Divider(color: Color(0xFFFFFFFF), thickness: 10),
+              Padding(
+                padding: const EdgeInsets.all(0.0),
+                child: _buildCounsellorSection(),
+              ),
+              const Divider(color: Color(0xFFFFFFFF), thickness: 10),
+              if (isLoading) // 로딩 인디케이터 표시
+                const Center(child: CircularProgressIndicator())
+            ],
+          ),
         ),
-      ),
+      )
     );
   }
 }

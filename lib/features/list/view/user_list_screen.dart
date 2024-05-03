@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../config/theme/app_color.dart';
 import 'user_list_item.dart';
 
 class UserListScreen extends StatefulWidget {
@@ -43,11 +44,15 @@ class _UserListScreenState extends State<UserListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: _counsellors.length,
-      itemBuilder: (context, index) {
-        return UserListItem(counsellor: _counsellors[index]);
-      },
+    return Container(
+      color: ColorStyles.backgroundColor,
+      height: MediaQuery.of(context).size.height,
+      child: ListView.builder(
+        itemCount: _counsellors.length,
+        itemBuilder: (context, index) {
+          return UserListItem(counsellor: _counsellors[index]);
+        },
+      )
     );
   }
 

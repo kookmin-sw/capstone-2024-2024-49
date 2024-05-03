@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:luckymoon/config/theme/app_color.dart';
 import 'package:luckymoon/core/logger.dart';
 import 'package:luckymoon/data/Counsellor.dart';
 import 'package:flutter/material.dart';
@@ -90,7 +91,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     
     return Scaffold(
       appBar: AppBar(
-          title: Text(titles[_tabController.index]),
+        backgroundColor: ColorStyles.backgroundColor,
+        title: Text(titles[_tabController.index]),
           actions: <Widget>[
             TextButton.icon(
               icon: const Icon(Icons.account_box_rounded),
@@ -98,6 +100,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               onPressed: () {},
             )
           ],
+        elevation: 0,
         ),
       body: TabBarView(
         controller: _tabController,

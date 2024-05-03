@@ -16,6 +16,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image/image.dart' as Img;
 
 
+import '../../../core/blank.dart';
 import '../../../data/Counsellor.dart';
 import '../chat_service.dart';
 
@@ -123,6 +124,16 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  void _sendFormMessage() {
+
+    var message = Message(sender: "system", text: "내담자가 입력폼 작성을 완료했습니다.", timestamp: DateTime.now());
+    chatService.sendMessage("system", message.text!);
+
+    setState(() {
+      _messages.add(message);
+    });
+  }
+
   void _sendMessage() {
     if (_messageController.text.isNotEmpty) {
 
@@ -204,6 +215,190 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  void _showBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        String gender = "남";
+        int age = 0;
+        int year = 0;
+        int month = 0;
+        int day = 0;
+        return StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
+          return Container(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                const Blank(0, 20),
+                const Text("상담 폼 입력", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const Blank(0, 50),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Text("성별 : ", style: TextStyle(fontSize: 18)),
+                    const Blank(55, 0),
+                    Row(
+                      children: [
+                        Radio<String>(
+                          value: "남",
+                          groupValue: gender,
+                          onChanged: (String? value) {
+                            setState(() => gender = value!);
+                          },
+                        ),
+                        const Text('남'),
+                      ],
+                    ),
+                    const Blank(20, 0),
+                    Row(
+                      children: [
+                        Radio<String>(
+                          value: "여",
+                          groupValue: gender,
+                          onChanged: (String? value) {
+                            setState(() => gender = value!);
+                          },
+                        ),
+                        const Text('여'),
+                      ],
+                    ),
+                  ],
+                ),
+                const Blank(0, 15),
+                Row(
+                  children: [
+                    const Text("나이 : ", style: TextStyle(fontSize: 18)),
+                    const Blank(55, 0),
+                    Expanded(
+                      flex: 1,
+                      child: TextField(
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: '',
+                        ),
+                        onChanged: (value) {
+                          if (value.isNotEmpty) {
+                            try {
+                              age = int.parse(value);
+                            } catch (e) {
+                              print("숫자만 입력해주세요.");
+                            }
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const Blank(0, 15),
+                Row(
+                  children: [
+                    const Text("생년월일 : ", style: TextStyle(fontSize: 18)),
+                    const Blank(20, 0),
+                    Expanded(
+                      flex: 1,
+                      child: TextField(
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: '년도',
+                        ),
+                        onChanged: (value) {
+                          if (value.isNotEmpty) {
+                            try {
+                              year = int.parse(value);
+                            } catch (e) {
+                              print("숫자만 입력해주세요.");
+                            }
+                          }
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: TextField(
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: '월',
+                        ),
+                        onChanged: (value) {
+                          if (value.isNotEmpty) {
+                            try {
+                              month = int.parse(value);
+                            } catch (e) {
+                              print("숫자만 입력해주세요.");
+                            }
+                          }
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: TextField(
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: '일',
+                        ),
+                        onChanged: (value) {
+                          if (value.isNotEmpty) {
+                            try {
+                              day = int.parse(value);
+                            } catch (e) {
+                              print("숫자만 입력해주세요.");
+                            }
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+
+                const Blank(0, 70),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (age.isNaN || year.isNaN || month.isNaN || day.isNaN
+                          || age < 1 || year > 2024 || month > 12 || month < 1
+                          || day > 31 || day < 1) {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('유효한 값을 입력해주세요.')));
+                        return;
+                      }
+
+                      String consultForm = "$gender,$age,${year},${month},${day}";
+                      _saveConsultForm(consultForm);
+                      _sendFormMessage();
+
+                      Navigator.pop(context);
+                      _sendMessage();
+                    },
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(ColorStyles.mainColor),
+                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                            const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero,
+                            )
+                        )
+                    ),
+                    child: const Text('확인', style: TextStyle(fontSize: 15, color: Colors.white)),
+                  ),
+                ),
+              ],
+            ),
+          );
+        });
+      },
+    );
+  }
+
+  void _saveConsultForm(String consultForm) async {
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
+    DocumentReference chatRoomRef = firestore.collection('chats').doc(chatRoomId);
+    await chatRoomRef.update({
+      'consultForm': consultForm, 
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -220,7 +415,7 @@ class _ChatScreenState extends State<ChatScreen> {
             child: IconButton(
               icon: const Icon(Icons.description, color: Colors.black),
               onPressed: () {
-
+                _showBottomSheet(context);
               },
             ),
           ),
@@ -270,7 +465,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                   style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                                 ),
                               ),
-                              if (message.text != null) // 메시지의 텍스트가 있는 경우 텍스트를 보여줌
+                              if (message.text != null)
                                 Container(
                                   margin: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 10),
                                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -283,7 +478,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                     style: const TextStyle(color: Colors.black),
                                   ),
                                 ),
-                              if (message.text.isEmpty && message.image != null) // 이미지 URL이 있는 경우 이미지를 보여줌
+                              if (message.text.isEmpty && message.image != null)
                                 Container(
                                   margin: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 10),
                                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -292,7 +487,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: ConstrainedBox(
-                                    constraints: BoxConstraints(
+                                    constraints: const BoxConstraints(
                                       maxWidth: 300,
                                     ),
                                     child: Image.network(
@@ -312,7 +507,7 @@ class _ChatScreenState extends State<ChatScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: ConstrainedBox(
-                              constraints: BoxConstraints(
+                              constraints: const BoxConstraints(
                                 maxWidth: 300,
                               ),
                               child: message.text.isNotEmpty ?
@@ -335,7 +530,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 },
               ),
             ),
-            if (isLoading) // 로딩 인디케이터 표시
+            if (isLoading)
               const Center(child: CircularProgressIndicator()),
             Padding(
               padding: const EdgeInsets.all(8.0),

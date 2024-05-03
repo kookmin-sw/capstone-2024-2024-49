@@ -97,10 +97,13 @@ class _ChatScreenState extends State<ChatScreen> {
     messageStream.listen((messageData) {
       setState(() {
         _messages = messageData;
+        _scrollToBottom();
       });
     });
 
-    _scrollToBottom();
+    Future.delayed(const Duration(milliseconds: 100), () {
+      _scrollToBottom();
+    });
   }
 
   void _initializeChatMessages(Counsellor counsellor, ChatService chatService) {
@@ -190,11 +193,15 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _scrollToBottom() {
-    _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOut,
-    );
+    if (_scrollController.hasClients) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      });
+    }
   }
 
   @override

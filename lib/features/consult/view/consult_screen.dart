@@ -31,6 +31,7 @@ class _ConsultScreenState extends State<ConsultScreen> {
   late User user;
   late String counsellorId;
   final TextEditingController _messageController = TextEditingController();
+  late ScrollController _scrollController;
   late List<Message> _messages = [];
   late ChatService chatService;
   late String chatRoomId;
@@ -40,6 +41,7 @@ class _ConsultScreenState extends State<ConsultScreen> {
   void initState() {
     super.initState();
     user = context.read<ConsultCubit>().getUser();
+    _scrollController = ScrollController();
     initializeChat();
   }
 
@@ -76,7 +78,12 @@ class _ConsultScreenState extends State<ConsultScreen> {
     messageStream.listen((messageData) {
       setState(() {
         _messages = messageData;
+        _scrollToBottom();
       });
+    });
+
+    Future.delayed(const Duration(milliseconds: 100), () {
+      _scrollToBottom();
     });
   }
 
@@ -89,6 +96,7 @@ class _ConsultScreenState extends State<ConsultScreen> {
         _messages.add(Message(sender: "counsellor", text: _messageController.text, timestamp: DateTime.now()));
         _messageController.clear();
       });
+      _scrollToBottom();
     }
   }
 
@@ -145,6 +153,19 @@ class _ConsultScreenState extends State<ConsultScreen> {
         isLoading = false;
       });
     }
+    _scrollToBottom();
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      });
+    }
   }
 
   @override
@@ -160,6 +181,7 @@ class _ConsultScreenState extends State<ConsultScreen> {
           children: <Widget>[
             Expanded(
               child: ListView.builder(
+                controller: _scrollController,
                 itemCount: _messages.length,
                 itemBuilder: (context, index) {
                   final message = _messages[index];

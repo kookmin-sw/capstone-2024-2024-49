@@ -92,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     return Scaffold(
       appBar: AppBar(
         backgroundColor: ColorStyles.backgroundColor,
-        title: Text(titles[_tabController.index]),
+        title: Text(_tabController == null ? "" : titles[_tabController.index]),
           actions: <Widget>[
             TextButton.icon(
               icon: const Icon(Icons.account_box_rounded),
@@ -104,7 +104,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         ),
       body: TabBarView(
         controller: _tabController,
-        physics: NeverScrollableScrollPhysics(), // 스와이프로 탭 변경을 막음
+        physics: const NeverScrollableScrollPhysics(), // 스와이프로 탭 변경을 막음
         children: tabViews,
       ),
       bottomNavigationBar: TabBar(
@@ -113,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         labelColor: Theme.of(context).primaryColor,
         unselectedLabelColor: Colors.grey,
         indicatorSize: TabBarIndicatorSize.label,
-        indicatorPadding: EdgeInsets.all(5.0),
+        indicatorPadding: const EdgeInsets.all(5.0),
       ),
     );
   }

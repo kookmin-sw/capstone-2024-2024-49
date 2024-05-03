@@ -156,10 +156,76 @@ class _BoardScreenState extends State<BoardScreen> {
     }).catchError((error) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('리뷰작성 실패.')));
     });
+  }
+
+  void _writeNotice() {
+    showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      builder: (BuildContext context) {
+        return SingleChildScrollView(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: Container(
+            padding: const EdgeInsets.only(top: 50, left: 16, right: 16, bottom: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextField(
+                  controller: _commentController,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    labelText: counsellor.notice,
+                  ),
+                ),
+                const Blank(0, 16),
+                ElevatedButton(
+                  onPressed: () {
+                    _addNotice(_commentController.text);
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    backgroundColor: Colors.pink,
+                    foregroundColor: Colors.white,
+                    fixedSize: const Size(100, 50),
+                  ),
+                  child: const Text('작성'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _addNotice(String notice) {
+
+    // Firestore에 counsellor 컬렉션에 notice 업데이트
+    FirebaseFirestore.instance.collection('counsellors').doc(userId).update({'notice': notice}).then((value) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('공지 수정 완료.')));
+
+      setState(() {
+        counsellor = Counsellor(
+          userId: userId,
+          nickname: counsellor.nickname,
+          comment: counsellor.comment,
+          notice: notice,
+          chatCount: counsellor.chatCount,
+          reviewCount: reviews.length,
+          profileUrl: counsellor.profileUrl
+        );
+
+
+
+      });
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('공지 수정 실패.')));
+    });
 
 
   }
-
 
 
   @override
@@ -229,8 +295,25 @@ class _BoardScreenState extends State<BoardScreen> {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(top: 50, bottom: 50, left: 16, right: 16),
-                  child: Text("${counsellor.nickname} 님의 게시판 입니다."),
+                  child: Text(counsellor.notice),
                 ),
+                if (counsellor.userId == userId)
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.edit),
+                    label: const Text('공지 수정'),
+                    onPressed: () {
+                      _writeNotice();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: ColorStyles.mainColor,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(0),
+                      ),
+                      elevation: 0,
+                    ),
+                  ),
                 const Divider(height: 1, color: Color(0xFFEAEAEA)),
                 ListView.builder(
                   shrinkWrap: true,

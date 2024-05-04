@@ -23,8 +23,8 @@ import '../../chat/chat_service.dart';
 import '../cubit/consult_cubit.dart';
 
 final List<String> zodiac = ['쥐', '소', '호랑이', '토끼', '용', '뱀', '말', '양', '원숭이', '닭', '개', '돼지'];
-final List<String> constellation = ['천귀', '천액', '천권', '천파', '천간', '천문', '천복', '천역', '천고', '천인', '천예', '천수'];
-final List<String> fiveelements = ['수', '토', '목', '목', '토', '화', '화', '토', '금', '금', '토', '수'];
+final List<String> destiny = ['천귀', '천액', '천권', '천파', '천간', '천문', '천복', '천역', '천고', '천인', '천예', '천수'];
+final List<String> days = ['수', '토', '목', '목', '토', '화', '화', '토', '금', '금', '토', '수'];
 
 class ConsultScreen extends StatefulWidget {
   const ConsultScreen({Key? key}) : super(key: key);
@@ -53,12 +53,12 @@ class _ConsultScreenState extends State<ConsultScreen> {
   var lunarYear = 0;
   var lunarMonth = 0;
   var lunarDay = 0;
-  var constellation1 = "";
-  var fiveelement1 = "";
-  var constellation2 = "";
-  var fiveelement2 = "";
-  var constellation3 = "";
-  var fiveelement3 = "";
+  var destiny1 = "";
+  var day1 = "";
+  var destiny2 = "";
+  var day2 = "";
+  var destiny3 = "";
+  var day3 = "";
 
   @override
   void initState() {
@@ -164,21 +164,21 @@ class _ConsultScreenState extends State<ConsultScreen> {
 
     var index1 = (lunarYear - 1900) % 12;
     ddi = "${zodiac[index1]}띠";
-    constellation1 = constellation[index1];
-    fiveelement1 = fiveelements[index1];
+    destiny1 = destiny[index1];
+    day1 = days[index1];
 
     var index2 = (index1 + lunarMonth - 1) % 12;
-    constellation2 = constellation[index2];
-    fiveelement2 = fiveelements[index2];
+    destiny2 = destiny[index2];
+    day2 = days[index2];
 
     var index3 = (index2 + lunarDay) % 12;
-    constellation3 = constellation[index3];
-    fiveelement3 = fiveelements[index3];
+    destiny3 = destiny[index3];
+    day3 = days[index3];
 
     logger.d("성별 : $gender, 나이 : $age");
     logger.d("음력 생년월일 : $lunar");
-    logger.d("constellation : $constellation1, $constellation2, $constellation3");
-    logger.d("fiveelement : $fiveelement1, $fiveelement2, $fiveelement3");
+    logger.d("destiny : $destiny1, $destiny2, $destiny3");
+    logger.d("day : $day1, $day2, $day3");
   }
 
   void _sendMessage() {
@@ -199,6 +199,10 @@ class _ConsultScreenState extends State<ConsultScreen> {
     final ImagePicker _picker = ImagePicker();
 
     final XFile? imageFile = await _picker.pickImage(source: ImageSource.gallery);
+
+    if (imageFile == null) {
+      return;
+    }
 
     setState(() {
       isLoading = true;
@@ -231,7 +235,6 @@ class _ConsultScreenState extends State<ConsultScreen> {
         await ref.putFile(file);
         imageUrl = await ref.getDownloadURL();
 
-        chatService.sendImage("counsellor", imageUrl);
 
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 업로드 실패: $e')));
@@ -240,9 +243,15 @@ class _ConsultScreenState extends State<ConsultScreen> {
 
     if (imageUrl != null) {
       setState(() {
+        chatService.sendImage("counsellor", imageUrl);
         _messages.add(
             Message(sender: "counsellor", text: "", image: imageUrl, timestamp: DateTime.now())
         );
+        isLoading = false;
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 선택이 취소되었습니다.')));
+      setState(() {
         isLoading = false;
       });
     }
@@ -456,8 +465,8 @@ class _ConsultScreenState extends State<ConsultScreen> {
                   const Blank(0, 20),
                   const Text("[사주정보]"),
                   const Blank(0, 10),
-                  Text("$constellation1  $constellation2  $constellation3"),
-                  Text("$fiveelement1  $fiveelement2  $fiveelement3"),
+                  Text("$destiny1  $destiny2  $destiny3"),
+                  Text("$day1  $day2  $day3"),
                 ],
               ),
             ),

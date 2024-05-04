@@ -160,6 +160,10 @@ class _ChatScreenState extends State<ChatScreen> {
 
     final XFile? imageFile = await _picker.pickImage(source: ImageSource.gallery);
 
+    if (imageFile == null) {
+      return;
+    }
+
     setState(() {
       isLoading = true;
     });
@@ -182,8 +186,6 @@ class _ChatScreenState extends State<ChatScreen> {
       List<int> resizedImageData = Img.encodeJpg(resizedImage);
       File resizedFile = await File("${imageFile.path}_resized").writeAsBytes(resizedImageData);
 
-
-
       // firebase storage 에 이미지 업로드 후 url 생성
       File file = File(resizedFile!.path);
       try {
@@ -191,15 +193,14 @@ class _ChatScreenState extends State<ChatScreen> {
         await ref.putFile(file);
         imageUrl = await ref.getDownloadURL();
 
-        chatService.sendImage("user", imageUrl);
-
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 업로드 실패: $e')));
       }
     }
-
+    logger.e("imageUrl : $imageUrl");
     if (imageUrl != null) {
       setState(() {
+        chatService.sendImage("user", imageUrl);
         _messages.add(
             Message(sender: "user", text: "", image: imageUrl, timestamp: DateTime.now())
         );
@@ -207,6 +208,11 @@ class _ChatScreenState extends State<ChatScreen> {
       });
 
       _scrollToBottom();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 선택이 취소되었습니다.')));
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 

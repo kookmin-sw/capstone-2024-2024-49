@@ -172,9 +172,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
               profileUrl = imageUrl;
             });
           } catch (e) {
-            isLoading = false;
+            setState(() {
+              isLoading = false;
+            });
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 업로드 실패: $e')));
           }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 선택이 취소되었습니다.')));
+          setState(() {
+            isLoading = false;
+          });
         }
 
         counsellor = Counsellor(
@@ -249,6 +256,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         });
 
       }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 선택이 취소되었습니다.')));
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 

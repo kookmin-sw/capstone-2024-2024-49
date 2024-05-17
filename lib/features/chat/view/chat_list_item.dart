@@ -9,12 +9,16 @@ import '../cubit/chat_cubit.dart';
 
 class ChatListItem extends StatelessWidget {
   final Counsellor counsellor;
+  final String chatId;
+  final DateTime createdAt;
   final String messageText;
   final DateTime messageTime;
 
   const ChatListItem({
     Key? key,
     required this.counsellor,
+    required this.chatId,
+    required this.createdAt,
     required this.messageText,
     required this.messageTime,
   }) : super(key: key);
@@ -38,9 +42,13 @@ class ChatListItem extends StatelessWidget {
       formattedDate = DateFormat('M월 d일').format(messageTime);
     }
 
+    // 시간 차이 계산 (20분 체크)
+    bool isClosed = now.difference(createdAt).inMinutes > 20;
+
     return InkWell(
       onTap: () {
         context.read<ChatCubit>().setCounsellor(counsellor);
+        context.read<ChatCubit>().setChatId(chatId);
         context.push('/chat');
       },
       child: Card(
@@ -49,7 +57,7 @@ class ChatListItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(0.0),
         ),
         elevation: 0.0,
-        color: Colors.yellow[600],
+        color: isClosed ? Colors.grey[300] : Colors.yellow[600],
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Row(

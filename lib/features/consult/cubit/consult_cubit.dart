@@ -13,4 +13,12 @@ class ConsultCubit extends Cubit<ConsultState> {
   User getUser() {
     return state.user;
   }
+
+  void setChatId(String chatId) {
+    state.chatId = chatId;
+  }
+
+  String getChatId() {
+    return state.chatId;
+  }
 }

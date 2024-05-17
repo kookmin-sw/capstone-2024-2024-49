@@ -23,6 +23,8 @@ mixin _$Chat {
   String? get chatId => throw _privateConstructorUsedError;
   String get counsellorId => throw _privateConstructorUsedError;
   String get userId => throw _privateConstructorUsedError;
+  @TimestampConverter()
+  DateTime get createdAt => throw _privateConstructorUsedError;
   bool get isClosed => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -36,7 +38,11 @@ abstract class $ChatCopyWith<$Res> {
       _$ChatCopyWithImpl<$Res, Chat>;
   @useResult
   $Res call(
-      {String? chatId, String counsellorId, String userId, bool isClosed});
+      {String? chatId,
+      String counsellorId,
+      String userId,
+      @TimestampConverter() DateTime createdAt,
+      bool isClosed});
 }
 
 /// @nodoc
@@ -55,6 +61,7 @@ class _$ChatCopyWithImpl<$Res, $Val extends Chat>
     Object? chatId = freezed,
     Object? counsellorId = null,
     Object? userId = null,
+    Object? createdAt = null,
     Object? isClosed = null,
   }) {
     return _then(_value.copyWith(
@@ -70,6 +77,10 @@ class _$ChatCopyWithImpl<$Res, $Val extends Chat>
           ? _value.userId
           : userId // ignore: cast_nullable_to_non_nullable
               as String,
+      createdAt: null == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
       isClosed: null == isClosed
           ? _value.isClosed
           : isClosed // ignore: cast_nullable_to_non_nullable
@@ -86,7 +97,11 @@ abstract class _$$ChatImplCopyWith<$Res> implements $ChatCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {String? chatId, String counsellorId, String userId, bool isClosed});
+      {String? chatId,
+      String counsellorId,
+      String userId,
+      @TimestampConverter() DateTime createdAt,
+      bool isClosed});
 }
 
 /// @nodoc
@@ -102,6 +117,7 @@ class __$$ChatImplCopyWithImpl<$Res>
     Object? chatId = freezed,
     Object? counsellorId = null,
     Object? userId = null,
+    Object? createdAt = null,
     Object? isClosed = null,
   }) {
     return _then(_$ChatImpl(
@@ -117,6 +133,10 @@ class __$$ChatImplCopyWithImpl<$Res>
           ? _value.userId
           : userId // ignore: cast_nullable_to_non_nullable
               as String,
+      createdAt: null == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
       isClosed: null == isClosed
           ? _value.isClosed
           : isClosed // ignore: cast_nullable_to_non_nullable
@@ -132,6 +152,7 @@ class _$ChatImpl implements _Chat {
       {required this.chatId,
       required this.counsellorId,
       required this.userId,
+      @TimestampConverter() required this.createdAt,
       required this.isClosed});
 
   factory _$ChatImpl.fromJson(Map<String, dynamic> json) =>
@@ -144,11 +165,14 @@ class _$ChatImpl implements _Chat {
   @override
   final String userId;
   @override
+  @TimestampConverter()
+  final DateTime createdAt;
+  @override
   final bool isClosed;
 
   @override
   String toString() {
-    return 'Chat(chatId: $chatId, counsellorId: $counsellorId, userId: $userId, isClosed: $isClosed)';
+    return 'Chat(chatId: $chatId, counsellorId: $counsellorId, userId: $userId, createdAt: $createdAt, isClosed: $isClosed)';
   }
 
   @override
@@ -160,14 +184,16 @@ class _$ChatImpl implements _Chat {
             (identical(other.counsellorId, counsellorId) ||
                 other.counsellorId == counsellorId) &&
             (identical(other.userId, userId) || other.userId == userId) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
             (identical(other.isClosed, isClosed) ||
                 other.isClosed == isClosed));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, chatId, counsellorId, userId, isClosed);
+  int get hashCode => Object.hash(
+      runtimeType, chatId, counsellorId, userId, createdAt, isClosed);
 
   @JsonKey(ignore: true)
   @override
@@ -188,6 +214,7 @@ abstract class _Chat implements Chat {
       {required final String? chatId,
       required final String counsellorId,
       required final String userId,
+      @TimestampConverter() required final DateTime createdAt,
       required final bool isClosed}) = _$ChatImpl;
 
   factory _Chat.fromJson(Map<String, dynamic> json) = _$ChatImpl.fromJson;
@@ -198,6 +225,9 @@ abstract class _Chat implements Chat {
   String get counsellorId;
   @override
   String get userId;
+  @override
+  @TimestampConverter()
+  DateTime get createdAt;
   @override
   bool get isClosed;
   @override

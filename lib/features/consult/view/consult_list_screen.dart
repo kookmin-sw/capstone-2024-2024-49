@@ -43,6 +43,7 @@ class _ConsultListScreenState extends State<ConsultListScreen> {
   void _fetchChats() {
     FirebaseFirestore.instance.collection('chats')
         .where('counsellorId', isEqualTo: _userId)
+        .orderBy('createdAt', descending: true)
         .get()
         .then((snapshot) {
       setState(() {
@@ -90,6 +91,8 @@ class _ConsultListScreenState extends State<ConsultListScreen> {
 
               return ConsultListItem(
                 user: user,
+                chatId: chat.chatId!!,
+                createdAt: chat.createdAt,
                 messageText: lastMessage,
                 messageTime: lastTimestamp,
               );

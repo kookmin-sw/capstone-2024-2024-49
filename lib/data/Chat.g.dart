@@ -10,6 +10,8 @@ _$ChatImpl _$$ChatImplFromJson(Map<String, dynamic> json) => _$ChatImpl(
       chatId: json['chatId'] as String?,
       counsellorId: json['counsellorId'] as String,
       userId: json['userId'] as String,
+      createdAt:
+          const TimestampConverter().fromJson(json['createdAt'] as Timestamp?),
       isClosed: json['isClosed'] as bool,
     );
 
@@ -18,5 +20,6 @@ Map<String, dynamic> _$$ChatImplToJson(_$ChatImpl instance) =>
       'chatId': instance.chatId,
       'counsellorId': instance.counsellorId,
       'userId': instance.userId,
+      'createdAt': const TimestampConverter().toJson(instance.createdAt),
       'isClosed': instance.isClosed,
     };

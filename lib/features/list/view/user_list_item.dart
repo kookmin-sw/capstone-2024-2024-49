@@ -88,6 +88,7 @@ class UserListItem extends StatelessWidget {
                         label: const Text('상담'),
                         onPressed: () {
                           context.read<ChatCubit>().setCounsellor(counsellor);
+                          context.read<ChatCubit>().setChatId("");
                           context.push('/chat');
                         },
                         style: ElevatedButton.styleFrom(

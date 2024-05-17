@@ -8,12 +8,16 @@ import '../cubit/consult_cubit.dart';
 
 class ConsultListItem extends StatelessWidget {
   final User user;
+  final String chatId;
+  final DateTime createdAt;
   final String messageText;
   final DateTime messageTime;
 
   const ConsultListItem({
     Key? key,
     required this.user,
+    required this.chatId,
+    required this.createdAt,
     required this.messageText,
     required this.messageTime,
   }) : super(key: key);
@@ -37,9 +41,13 @@ class ConsultListItem extends StatelessWidget {
       formattedDate = DateFormat('M월 d일').format(messageTime);
     }
 
+    // 시간 차이 계산 (20분 체크)
+    bool isClosed = now.difference(createdAt).inMinutes > 20;
+
     return InkWell(
       onTap: () {
         context.read<ConsultCubit>().setUser(user);
+        context.read<ConsultCubit>().setChatId(chatId);
         context.push('/consult');
       },
       child: Card(
@@ -48,7 +56,7 @@ class ConsultListItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(0.0),
         ),
         elevation: 0.0,
-        color: Colors.green[200],
+        color: isClosed ? Colors.grey[300] : Colors.green[200],
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Row(

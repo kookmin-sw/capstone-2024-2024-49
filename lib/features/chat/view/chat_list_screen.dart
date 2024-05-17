@@ -42,6 +42,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
   void _fetchChats() {
     FirebaseFirestore.instance.collection('chats')
         .where('userId', isEqualTo: _userId)
+        .orderBy('createdAt', descending: true)
         .get()
         .then((snapshot) {
       setState(() {
@@ -93,6 +94,8 @@ class _ChatListScreenState extends State<ChatListScreen> {
 
               return ChatListItem(
                 counsellor: counsellor,
+                chatId: chat.chatId!!,
+                createdAt: chat.createdAt,
                 messageText: lastMessage,
                 messageTime: lastTimestamp,
               );

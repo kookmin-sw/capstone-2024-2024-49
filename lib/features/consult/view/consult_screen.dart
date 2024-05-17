@@ -2,7 +2,9 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:luckymoon/config/theme/app_color.dart';
 import 'package:luckymoon/core/logger.dart';
@@ -36,11 +38,13 @@ class ConsultScreen extends StatefulWidget {
 class _ConsultScreenState extends State<ConsultScreen> {
   late User user;
   late String counsellorId;
+  late String chatId;
   final TextEditingController _messageController = TextEditingController();
   late ScrollController _scrollController;
   late List<Message> _messages = [];
   late ChatService chatService;
   late String chatRoomId;
+  bool isClosed = false;
   bool isLoading = false;
   bool isShowConsultForm = false;
   bool isShowConsultDetail = false;
@@ -63,6 +67,7 @@ class _ConsultScreenState extends State<ConsultScreen> {
   @override
   void initState() {
     super.initState();
+    chatId = context.read<ConsultCubit>().getChatId();
     user = context.read<ConsultCubit>().getUser();
     _scrollController = ScrollController();
     initializeChat();
@@ -86,16 +91,23 @@ class _ConsultScreenState extends State<ConsultScreen> {
 
   Future<void> _initChat() async {
 
-    // 채팅방 조회
     var chatQuery = await FirebaseFirestore.instance.collection('chats')
-        .where('userId', isEqualTo: user.userId)
-        .where('counsellorId', isEqualTo: counsellorId)
-        .where('isClosed', isEqualTo: false)
-        .limit(1)
+        .doc(chatId)
         .get();
 
-    chatRoomId = chatQuery.docs.first.id;
-    chatService = ChatService(chatRoomId);
+    chatService = ChatService(chatId);
+
+    Timestamp createdAt = chatQuery['createdAt'] as Timestamp;
+
+    final duration = DateTime.now().difference(createdAt.toDate());
+
+
+    // 20분 넘었으면 대화창 입력 불가
+    if (duration.inMinutes >= 20) {
+      setState(() {
+        isClosed = true;
+      });
+    }
 
     var messageStream = chatService.getMessages();
     messageStream.listen((messageData) {
@@ -104,6 +116,10 @@ class _ConsultScreenState extends State<ConsultScreen> {
 
         if (_messages.last.text.contains("내담자") && _messages.last.sender == "system") {
           _getConsultForm();
+        } else if (_messages.last.text.contains("종료되었습니다") && _messages.last.sender == "system") {
+          setState(() {
+            isClosed = true;
+          });
         }
 
         Future.delayed(const Duration(milliseconds: 10), () {
@@ -118,30 +134,23 @@ class _ConsultScreenState extends State<ConsultScreen> {
   // 내담자의 입력폼 완료 메시지가 뜨면 consultForm 로딩 후 변환
   void _getConsultForm() {
 
-    FirebaseFirestore.instance.collection('chats')
-        .where('userId', isEqualTo: user.userId)
-        .where('counsellorId', isEqualTo: counsellorId)
-        .where('isClosed', isEqualTo: false)
-        .limit(1)
-        .get().then((querySnapshot) {
+   FirebaseFirestore.instance.collection('chats')
+        .doc(chatId)
+        .get().then((doc) {
 
-      if (querySnapshot.docs.isNotEmpty) {
-        var data = querySnapshot.docs.first.data();
-        String? consultForm = data['consultForm'] as String?;
+      var data = doc.data();
+      String? consultForm = data!['consultForm'] as String?;
 
-        if (consultForm != null) {
-          // consultForm 필드가 존재하면 생성
-          setState(() {
-            isShowConsultForm = true;
-          });
-          _generateConsultForm(consultForm);
-        } else {
-          logger.e("내담자 입력 폼이 없음");
-        }
+      if (consultForm != null) {
+        // consultForm 필드가 존재하면 생성
+        setState(() {
+          isShowConsultForm = true;
+        });
+        _generateConsultForm(consultForm);
       } else {
-        logger.e("해당되는 채팅방이 없음");
+        logger.e("내담자 입력 폼이 없음");
       }
-    });
+        });
 
   }
 
@@ -256,6 +265,62 @@ class _ConsultScreenState extends State<ConsultScreen> {
       });
     }
     _scrollToBottom();
+  }
+
+  Future<void> _pickImageWeb() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    // 파일 선택
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+        allowMultiple: false
+    );
+
+    if (result != null) {
+      PlatformFile file = result.files.first;
+
+      // 파일에서 이미지 데이터 읽기
+      Uint8List imageData = file.bytes!;
+      Img.Image? originalImage = Img.decodeImage(imageData);
+
+      // 이미지 크기 조정
+      int width = 300;
+      double aspectRatio = originalImage!.width / originalImage.height;
+      int height = (width / aspectRatio).round();
+      Img.Image resizedImage = Img.copyResize(originalImage, width: width, height: height);
+
+      // 조정된 이미지를 새 파일로 저장
+      List<int> resizedImageData = Img.encodeJpg(resizedImage);
+      Uint8List resizedImageDataBytes = Uint8List.fromList(resizedImageData);
+
+      // Firebase Storage에 이미지 업로드
+      String filePath = 'chatImages/${DateTime.now().millisecondsSinceEpoch}';
+      try {
+        final ref = FirebaseStorage.instance.ref().child(filePath);
+        await ref.putData(resizedImageDataBytes);
+        String imageUrl = await ref.getDownloadURL();
+
+        // 이미지 메시지 전송
+        chatService.sendImage("counsellor", imageUrl);
+        _messages.add(Message(sender: "counsellor", text: "", image: imageUrl, timestamp: DateTime.now()));
+
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 업로드 실패: $e')));
+      }
+
+      setState(() {
+        isLoading = false;
+      });
+
+      _scrollToBottom();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 선택이 취소되었습니다.')));
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   void _scrollToBottom() {
@@ -417,7 +482,11 @@ class _ConsultScreenState extends State<ConsultScreen> {
                     children: <Widget>[
                       IconButton(
                         onPressed: () {
-                          _pickImage();
+                          if (kIsWeb) {
+                            _pickImageWeb();
+                          } else {
+                            _pickImage();
+                          }
                         },
                         icon: const Icon(Icons.attach_file),
                         color: Colors.black,
@@ -425,13 +494,14 @@ class _ConsultScreenState extends State<ConsultScreen> {
                       Expanded(
                         child: TextField(
                           controller: _messageController,
+                          enabled: !isClosed,
                           decoration: InputDecoration(
-                            hintText: '메시지 입력',
+                            hintText: isClosed ? '상담시간이 종료되었습니다.' : '메시지 입력',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
                             filled: true,
-                            fillColor: Colors.white,
+                            fillColor: isClosed ? Colors.grey[300] : Colors.white,
                           ),
                         ),
                       ),

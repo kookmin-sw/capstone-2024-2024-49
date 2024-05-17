@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -86,7 +88,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
-  void becomeCounsellor(BuildContext context, String currentUserId) async {
+  void becomeCounsellor(BuildContext context, String userId) async {
     // 인증번호 입력을 위한 다이얼로그
     String? certificationCode = await showDialog<String>(
       context: context,
@@ -97,10 +99,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           content: TextField(
             onChanged: (value) => inputCode = value,
             decoration: const InputDecoration(hintText: "인증번호를 입력하세요"),
-            keyboardType: TextInputType.number, // 숫자만 입력
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly
-            ], // 숫자만 입력되도록 필터
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           ),
           actions: <Widget>[
             TextButton(
@@ -114,7 +114,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     // 인증번호 검증
     if (certificationCode != null && certificationCode == '0000') {
-      XFile? imageFile;
+      dynamic imageFile; // XFile or PlatformFile에 대응
       final ImagePicker _picker = ImagePicker();
 
       // 상담자 코멘트 입력을 위한 다이얼로그
@@ -131,9 +131,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     IconButton(
-                      icon: imageFile != null ? Image.file(File(imageFile!.path), height: 100) : const Icon(Icons.add_photo_alternate, size: 40),
+                      icon: imageFile != null ? (kIsWeb ? Image.memory(imageFile.bytes, height: 100) : Image.file(File(imageFile.path), height: 100)) : const Icon(Icons.add_photo_alternate, size: 40),
                       onPressed: () async {
-                        imageFile = await _picker.pickImage(source: ImageSource.gallery);
+                        if (!kIsWeb) {
+                          imageFile = await _picker.pickImage(source: ImageSource.gallery);
+                        } else {
+                          FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.image);
+                          if (result != null) imageFile = result.files.first;
+                        }
                         setState(() {});
                       },
                     ),
@@ -145,9 +150,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 actions: <Widget>[
                   TextButton(
-                    onPressed: () => {
-                      isLoading = true,
-                      Navigator.pop(context, commentController.text)
+                    onPressed: () {
+                      Navigator.pop(context, commentController.text);
                     },
                     child: const Text('확인'),
                   ),
@@ -161,61 +165,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (comment != null && comment.isNotEmpty) {
         String imageUrl = '';
         if (imageFile != null) {
-          // firebase storage 에 이미지 업로드 후 url 생성
-          File file = File(imageFile!.path);
+          // firebase storage에 이미지 업로드 후 url 생성
           try {
-            final ref = FirebaseStorage.instance.ref().child('profileImages').child(userId);
-            await ref.putFile(file);
-            imageUrl = await ref.getDownloadURL();
 
-            setState(() {
-              profileUrl = imageUrl;
-            });
+            if (kIsWeb) {
+              final ref = FirebaseStorage.instance.ref().child('profileImages').child(userId);
+              await ref.putData(imageFile.bytes!);
+              imageUrl = await ref.getDownloadURL();
+            } else {
+              File file = File(imageFile.path);
+              final ref = FirebaseStorage.instance.ref().child('profileImages').child(userId);
+              await ref.putFile(file);
+              imageUrl = await ref.getDownloadURL();
+            }
           } catch (e) {
-            setState(() {
-              isLoading = false;
-            });
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 업로드 실패: $e')));
           }
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 선택이 취소되었습니다.')));
-          setState(() {
-            isLoading = false;
-          });
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('이미지 선택이 취소되었습니다.')));
         }
 
-        counsellor = Counsellor(
-          userId: userId,
-          nickname: nickname,
-          comment: comment,
-          chatCount: 0,
-          notice: '$nickname님의 후기 게시판 입니다.',
-          reviewCount: 0,
-          profileUrl: imageUrl,
-        );
+        // Firestore에 상담사 정보 저장
+        if (imageUrl.isNotEmpty) {
+          FirebaseFirestore.instance.collection('counsellors').doc(userId).set({
+            'userId': userId,
+            'nickname': nickname,
+            'comment': comment,
+            'profileUrl': imageUrl,
+            'chatCount': 0,
+            'reviewCount': 0,
+            'notice': '${userId}님의 후기 게시판 입니다.'
+          }).then((value) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('상담자로 등록됐습니다.')));
+          }).catchError((error) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('상담자 등록에 실패했습니다: $error')));
+          });
 
-        FirebaseFirestore.instance
-            .collection('counsellors')
-            .doc(userId)
-            .set(counsellor.toJson())
-            .then((value) {
-          isLoading = false;
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('상담자로 등록됐습니다.')));
-        }).catchError((error) {
-          isLoading = false;
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('상담자 등록에 실패했습니다: $error')));
-        });
-
-        FirebaseFirestore.instance
-            .collection('users')
-            .doc(userId)
-            .update({'isCounsellor': true, 'profileUrl': imageUrl});
-
-
+          // 사용자 정보 업데이트
+          FirebaseFirestore.instance.collection('users').doc(userId).update({
+            'isCounsellor': true,
+            'profileUrl': imageUrl
+          });
+        }
       }
     } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('잘못된 인증번호입니다.')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('잘못된 인증번호입니다.')));
     }
   }
 
@@ -264,6 +258,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  Future<void> _pickImageWeb() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    // 파일 선택
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+        allowMultiple: false
+    );
+
+    if (result != null) {
+      PlatformFile file = result.files.first;
+
+      // Firebase Storage에 이미지 업로드
+      String filePath = 'profileImages/$userId';
+      try {
+        final ref = FirebaseStorage.instance.ref().child(filePath);
+        await ref.putData(file.bytes!);
+        String imageUrl = await ref.getDownloadURL();
+
+        // Firestore에서 사용자 프로필 URL 업데이트
+        await FirebaseFirestore.instance
+            .collection('counsellors')
+            .doc(userId)
+            .update({'profileUrl': imageUrl});
+
+        setState(() {
+          profileUrl = imageUrl;
+          isLoading = false;
+        });
+
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 업로드 실패: $e')));
+        setState(() {
+          isLoading = false;
+        });
+      }
+
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 선택이 취소되었습니다.')));
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
   void _showUpdateComment() {
     showModalBottomSheet(
       isScrollControlled: true,
@@ -281,7 +322,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   controller: _commentController,
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
-                    labelText: counsellor.notice,
+                    labelText: counsellor.comment,
                   ),
                 ),
                 const Blank(0, 16),
@@ -388,7 +429,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           InkWell(
             onTap: () {
-              _pickImage();
+              if (kIsWeb) {
+                _pickImageWeb();
+              } else {
+                _pickImage();
+              }
             },
             child: const Padding(
               padding: EdgeInsets.only(left: 20.0, right: 20.0, top: 10, bottom: 10),

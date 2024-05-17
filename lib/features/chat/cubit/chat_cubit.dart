@@ -12,4 +12,12 @@ class ChatCubit extends Cubit<ChatState> {
   Counsellor getCounsellor() {
     return state.counsellor;
   }
+
+  void setChatId(String chatId) {
+    state.chatId = chatId;
+  }
+
+  String getChatId() {
+    return state.chatId;
+  }
 }

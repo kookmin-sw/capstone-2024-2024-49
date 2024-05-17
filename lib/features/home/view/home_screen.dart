@@ -19,14 +19,13 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+  TabController? _tabController = null;
   String _nickname = "";
   bool _isCounsellor = false;
 
   @override
   void initState() {
     super.initState();
-    //_tabController = TabController(length: _isCounsellor ? 4 : 3, vsync: this);
 
     _checkCounsellorStatus();
     _getNickname();
@@ -34,8 +33,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   @override
   void dispose() {
-    _tabController.removeListener(_setAppBarTitle);
-    _tabController.dispose();
+    _tabController?.removeListener(_setAppBarTitle);
+    _tabController?.dispose();
     super.dispose();
   }
 
@@ -59,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       setState(() {
         _isCounsellor = isCounsellor!;
         _tabController = TabController(length: _isCounsellor ? 4 : 3, vsync: this);
-        _tabController.addListener(_setAppBarTitle);
+        _tabController?.addListener(_setAppBarTitle);
       });
     }
 
@@ -92,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     return Scaffold(
       appBar: AppBar(
         backgroundColor: ColorStyles.backgroundColor,
-        title: Text(_tabController == null ? "" : titles[_tabController.index]),
+        title: Text(_tabController == null ? "" : titles[_tabController!.index]),
           actions: <Widget>[
             TextButton.icon(
               icon: const Icon(Icons.account_box_rounded),
@@ -102,12 +101,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           ],
         elevation: 0,
         ),
-      body: TabBarView(
+      body: _tabController == null ? null : TabBarView(
         controller: _tabController,
         physics: const NeverScrollableScrollPhysics(), // 스와이프로 탭 변경을 막음
         children: tabViews,
       ),
-      bottomNavigationBar: TabBar(
+      bottomNavigationBar: _tabController == null ? null : TabBar(
         controller: _tabController,
         tabs: tabs,
         labelColor: Theme.of(context).primaryColor,

@@ -67,7 +67,8 @@
 
 ## 🛠 설치
 
-<p align="center"><img src = "https://github.com/kookmin-sw/capstone-2024-49/assets/55122068/7647503e-7482-4974-80c9-68f90c10506a" width="500px" height="500px"></p>
+<p align="center"><img src = "https://github.com/kookmin-sw/capstone-2024-49/assets/55122068/8cca3cd7-1f50-432b-8af4-b7e979fe2022" width="500px" height="500px"></p>
+
 
 ##### step 1:
 ```markdown
@@ -81,7 +82,7 @@ QR 코드를 스캔하세요.
 
 ##### step 3:
 ```markdown
-출처를 알 수 없는 앱 허용
+무시하고 다운로드출처를 알 수 없는 앱 허용
 ```
 
 ##### step 4:

@@ -35,21 +35,28 @@
 
 ---
 
-###  🍅로고 
+###  🍀 로고 
+
 <p align="center"><img src = "https://github.com/kookmin-sw/capstone-2024-49/assets/55122068/40b0ccdf-47ff-49cd-a704-f9dc3e736346" width="500px" height="500px"></p>
 
 ---
 
-###  💎주요 기능
-<img src = "https://github.com/kookmin-sw/capstone-2024-49/assets/55122068/d5980a10-cc4a-4647-bc57-3fc729d4166e" width="400px" height="800px">
+###  💎 주요 기능
 
-##### 내담자
+|<img src = "https://github.com/kookmin-sw/capstone-2024-49/assets/55122068/d5980a10-cc4a-4647-bc57-3fc729d4166e" width="300px" height="600px">|<img src = "https://github.com/kookmin-sw/capstone-2024-49/assets/55122068/8e539c54-dc7c-403c-a9c4-0c341b4546b3" width="300px" height="600px">|공통기능|
+|:------:|:------:|:------:|
+|내담자|상담사|채팅 상담 시간은 20분|
+|상담시 기본정보 입력폼 작성|작성된 입력 폼 자동 변환되어 상담사만 확인 가능|재상담시 새로운 채팅방으로 진행|
 
-```markdown
+---
 
-내담자의 기본정보를 상담시 입력폼을 통해 작성
+###  ⭐ 기본 기능
 
-```
+|<img src = "https://github.com/kookmin-sw/capstone-2024-49/assets/55122068/e344d09e-1cba-4de2-9265-4a4811be4c9b" width="300px" height="600px">|<img src = "https://github.com/kookmin-sw/capstone-2024-49/assets/55122068/1f17d6bf-0827-41ed-907d-b77cbd789faa" width="300px" height="600px">|<img src = "https://github.com/kookmin-sw/capstone-2024-49/assets/55122068/2167ec55-d0bc-4718-ad9a-22573986789a" width="300px" height="600px">|<img src = "https://github.com/kookmin-sw/capstone-2024-49/assets/55122068/c6ea045c-3766-46d3-9393-d462c259a1f5" width="300px" height="600px">|
+|:------:|:------:|:------:|:------:|
+|로그인 & 회원가입|상담사 인증코드|상담사 리스트|상담사 공지 및 후기|
+|내담자 화면|내담자 화면|상담사 & 내담자 화면|상담사 & 내담자 화면|
+
 ---
 
 ## 💻 시스템 구성도

@@ -1,15 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
-import 'package:luckymoon/core/logger.dart';
 import 'package:luckymoon/data/Chat.dart';
-import 'package:luckymoon/data/Counsellor.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../data/User.dart';
-import '../cubit/consult_cubit.dart';
 import 'consult_list_item.dart';
 
 
@@ -81,7 +75,7 @@ class _ConsultListScreenState extends State<ConsultListScreen> {
             future: Future.wait([userFuture, messageFuture]),
             builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
+                return const CircularProgressIndicator();
               }
 
               User user = snapshot.data![0];
@@ -91,7 +85,7 @@ class _ConsultListScreenState extends State<ConsultListScreen> {
 
               return ConsultListItem(
                 user: user,
-                chatId: chat.chatId!!,
+                chatId: chat.chatId!,
                 createdAt: chat.createdAt,
                 messageText: lastMessage,
                 messageTime: lastTimestamp,

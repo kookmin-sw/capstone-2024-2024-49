@@ -9,7 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:luckymoon/config/theme/app_color.dart';
-import 'package:luckymoon/core/logger.dart';
 import 'package:luckymoon/data/Counsellor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
@@ -115,7 +114,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // 인증번호 검증
     if (certificationCode != null && certificationCode == '0000') {
       dynamic imageFile; // XFile or PlatformFile에 대응
-      final ImagePicker _picker = ImagePicker();
+      final ImagePicker picker = ImagePicker();
 
       // 상담자 코멘트 입력을 위한 다이얼로그
       // ignore: use_build_context_synchronously
@@ -134,7 +133,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       icon: imageFile != null ? (kIsWeb ? Image.memory(imageFile.bytes, height: 100) : Image.file(File(imageFile.path), height: 100)) : const Icon(Icons.add_photo_alternate, size: 40),
                       onPressed: () async {
                         if (!kIsWeb) {
-                          imageFile = await _picker.pickImage(source: ImageSource.gallery);
+                          imageFile = await picker.pickImage(source: ImageSource.gallery);
                         } else {
                           FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.image);
                           if (result != null) imageFile = result.files.first;
@@ -194,7 +193,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             'profileUrl': imageUrl,
             'chatCount': 0,
             'reviewCount': 0,
-            'notice': '${userId}님의 후기 게시판 입니다.'
+            'notice': '$userId님의 후기 게시판 입니다.'
           }).then((value) {
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('상담자로 등록됐습니다.')));
           }).catchError((error) {
@@ -215,9 +214,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _pickImage() async {
 
-    final ImagePicker _picker = ImagePicker();
+    final ImagePicker picker = ImagePicker();
 
-    final XFile? imageFile = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? imageFile = await picker.pickImage(source: ImageSource.gallery);
 
     setState(() {
       isLoading = true;
@@ -227,7 +226,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     String imageUrl = '';
     if (imageFile != null) {
       // firebase storage 에 이미지 업로드 후 url 생성
-      File file = File(imageFile!.path);
+      File file = File(imageFile.path);
       try {
         final ref = FirebaseStorage.instance.ref().child('profileImages').child(userId);
         await ref.putFile(file);
@@ -251,7 +250,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 선택이 취소되었습니다.')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('이미지 선택이 취소되었습니다.')));
       setState(() {
         isLoading = false;
       });
@@ -298,7 +297,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
 
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 선택이 취소되었습니다.')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('이미지 선택이 취소되었습니다.')));
       setState(() {
         isLoading = false;
       });
@@ -458,7 +457,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: ElevatedButton.icon(
           icon: const Icon(Icons.verified_user, size: 24),
           label: const Text('상담자 인증', style: TextStyle(fontSize: 16)),
-          onPressed: () => becomeCounsellor(context, userId!),
+          onPressed: () => becomeCounsellor(context, userId),
           style: ElevatedButton.styleFrom(
             backgroundColor: ColorStyles.mainColor,
             foregroundColor: Colors.white,

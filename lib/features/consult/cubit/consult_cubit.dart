@@ -1,5 +1,4 @@
 import 'package:bloc/bloc.dart';
-import 'package:luckymoon/data/Counsellor.dart';
 import '../../../data/User.dart';
 import '../state/consult_state.dart';
 

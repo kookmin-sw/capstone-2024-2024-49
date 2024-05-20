@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
@@ -11,15 +10,11 @@ import 'package:luckymoon/core/logger.dart';
 import 'package:luckymoon/data/Message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import '../../../core/blank.dart';
-import '../../chat/cubit/chat_cubit.dart';
-import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image/image.dart' as Img;
 import 'package:klc/klc.dart';
 
-import '../../../data/Counsellor.dart';
 import '../../../data/User.dart';
 import '../../chat/chat_service.dart';
 import '../cubit/consult_cubit.dart';
@@ -205,9 +200,9 @@ class _ConsultScreenState extends State<ConsultScreen> {
 
   Future<void> _pickImage() async {
 
-    final ImagePicker _picker = ImagePicker();
+    final ImagePicker picker = ImagePicker();
 
-    final XFile? imageFile = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? imageFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (imageFile == null) {
       return;
@@ -219,52 +214,43 @@ class _ConsultScreenState extends State<ConsultScreen> {
 
     // 선택된 이미지를 Firestore에 업로드
     String imageUrl = '';
-    if (imageFile != null) {
-      // 파일에서 이미지 데이터 읽기
-      Uint8List imageData = await imageFile.readAsBytes();
-      Img.Image? originalImage = Img.decodeImage(imageData);
+    // 파일에서 이미지 데이터 읽기
+    Uint8List imageData = await imageFile.readAsBytes();
+    Img.Image? originalImage = Img.decodeImage(imageData);
 
-      // 이미지 너비를 300px로 고정하고 높이를 자동 조정
-      int width = 300;
-      double aspectRatio = originalImage!.width / originalImage.height;
-      int height = (width / aspectRatio).round();
+    // 이미지 너비를 300px로 고정하고 높이를 자동 조정
+    int width = 300;
+    double aspectRatio = originalImage!.width / originalImage.height;
+    int height = (width / aspectRatio).round();
 
-      Img.Image resizedImage = Img.copyResize(originalImage, width: width, height: height);
+    Img.Image resizedImage = Img.copyResize(originalImage, width: width, height: height);
 
-      // 조정된 이미지를 새 파일로 저장
-      List<int> resizedImageData = Img.encodeJpg(resizedImage);
-      File resizedFile = await File(imageFile.path).writeAsBytes(resizedImageData);
-
+    // 조정된 이미지를 새 파일로 저장
+    List<int> resizedImageData = Img.encodeJpg(resizedImage);
+    File resizedFile = await File(imageFile.path).writeAsBytes(resizedImageData);
 
 
-      // firebase storage 에 이미지 업로드 후 url 생성
-      File file = File(resizedFile!.path);
-      try {
-        final ref = FirebaseStorage.instance.ref().child('chatImages').child(imageFile!.path);
-        await ref.putFile(file);
-        imageUrl = await ref.getDownloadURL();
+
+    // firebase storage 에 이미지 업로드 후 url 생성
+    File file = File(resizedFile.path);
+    try {
+      final ref = FirebaseStorage.instance.ref().child('chatImages').child(imageFile.path);
+      await ref.putFile(file);
+      imageUrl = await ref.getDownloadURL();
 
 
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 업로드 실패: $e')));
-      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 업로드 실패: $e')));
     }
-
-    if (imageUrl != null) {
-      setState(() {
-        chatService.sendImage("counsellor", imageUrl);
-        _messages.add(
-            Message(sender: "counsellor", text: "", image: imageUrl, timestamp: DateTime.now())
-        );
-        isLoading = false;
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 선택이 취소되었습니다.')));
-      setState(() {
-        isLoading = false;
-      });
-    }
-    _scrollToBottom();
+  
+    setState(() {
+      chatService.sendImage("counsellor", imageUrl);
+      _messages.add(
+          Message(sender: "counsellor", text: "", image: imageUrl, timestamp: DateTime.now())
+      );
+      isLoading = false;
+    });
+      _scrollToBottom();
   }
 
   Future<void> _pickImageWeb() async {
@@ -316,7 +302,7 @@ class _ConsultScreenState extends State<ConsultScreen> {
 
       _scrollToBottom();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 선택이 취소되었습니다.')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('이미지 선택이 취소되었습니다.')));
       setState(() {
         isLoading = false;
       });
@@ -381,7 +367,7 @@ class _ConsultScreenState extends State<ConsultScreen> {
                         return Center(
                           child: Padding(
                             padding: const EdgeInsets.all(8),
-                            child: Text(message.text!, style: const TextStyle(fontSize: 14, color: Colors.white)),
+                            child: Text(message.text, style: const TextStyle(fontSize: 14, color: Colors.white)),
                           ),
                         );
                       }
@@ -418,7 +404,7 @@ class _ConsultScreenState extends State<ConsultScreen> {
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Text(
-                                        message.text!,
+                                        message.text,
                                         style: const TextStyle(color: Colors.black),
                                       ),
                                     ),

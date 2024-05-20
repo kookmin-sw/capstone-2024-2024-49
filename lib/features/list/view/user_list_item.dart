@@ -1,5 +1,4 @@
 import 'package:luckymoon/config/theme/app_color.dart';
-import 'package:luckymoon/core/logger.dart';
 import 'package:luckymoon/data/Counsellor.dart';
 import 'package:luckymoon/features/board/cubit/board_cubit.dart';
 import 'package:luckymoon/features/chat/cubit/chat_cubit.dart';

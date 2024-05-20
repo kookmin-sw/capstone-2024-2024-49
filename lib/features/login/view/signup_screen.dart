@@ -144,7 +144,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   Expanded(
                     child: Text(
                       '사용자약관 및 개인정보처리방침에 동의합니다.',
-                      style: Theme.of(context).textTheme.subtitle1,
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
                   ),
                 ],

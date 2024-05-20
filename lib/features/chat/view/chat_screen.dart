@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -12,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:luckymoon/features/chat/cubit/chat_cubit.dart';
-import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image/image.dart' as Img;
 import 'package:file_picker/file_picker.dart';
@@ -173,7 +171,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     // Firestore에 초기 메시지들을 저장
     for (var message in initialMessages) {
-      chatService.sendMessage("system", message.text!);
+      chatService.sendMessage("system", message.text);
     }
 
     setState(() {
@@ -215,7 +213,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void _sendFormMessage() {
 
     var message = Message(sender: "system", text: "내담자가 입력폼 작성을 완료했습니다.", timestamp: DateTime.now());
-    chatService.sendMessage("system", message.text!);
+    chatService.sendMessage("system", message.text);
 
     setState(() {
       _messages.add(message);
@@ -237,9 +235,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _pickImage() async {
-    final ImagePicker _picker = ImagePicker();
+    final ImagePicker picker = ImagePicker();
 
-    final XFile? imageFile = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? imageFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (imageFile == null) {
       return;
@@ -251,51 +249,42 @@ class _ChatScreenState extends State<ChatScreen> {
 
     // 선택된 이미지를 Firestore에 업로드
     String imageUrl = '';
-    if (imageFile != null) {
-      // 파일에서 이미지 데이터 읽기
-      Uint8List imageData = await imageFile.readAsBytes();
-      Img.Image? originalImage = Img.decodeImage(imageData);
+    // 파일에서 이미지 데이터 읽기
+    Uint8List imageData = await imageFile.readAsBytes();
+    Img.Image? originalImage = Img.decodeImage(imageData);
 
-      // 이미지 너비를 300px로 고정하고 높이를 자동 조정
-      int width = 300;
-      double aspectRatio = originalImage!.width / originalImage.height;
-      int height = (width / aspectRatio).round();
+    // 이미지 너비를 300px로 고정하고 높이를 자동 조정
+    int width = 300;
+    double aspectRatio = originalImage!.width / originalImage.height;
+    int height = (width / aspectRatio).round();
 
-      Img.Image resizedImage = Img.copyResize(originalImage, width: width, height: height);
+    Img.Image resizedImage = Img.copyResize(originalImage, width: width, height: height);
 
-      // 조정된 이미지를 새 파일로 저장
-      List<int> resizedImageData = Img.encodeJpg(resizedImage);
-      File resizedFile = await File("${imageFile.path}_resized").writeAsBytes(resizedImageData);
+    // 조정된 이미지를 새 파일로 저장
+    List<int> resizedImageData = Img.encodeJpg(resizedImage);
+    File resizedFile = await File("${imageFile.path}_resized").writeAsBytes(resizedImageData);
 
-      // firebase storage 에 이미지 업로드 후 url 생성
-      File file = File(resizedFile!.path);
-      try {
-        final ref = FirebaseStorage.instance.ref().child('chatImages').child(imageFile!.path);
-        await ref.putFile(file);
-        imageUrl = await ref.getDownloadURL();
+    // firebase storage 에 이미지 업로드 후 url 생성
+    File file = File(resizedFile.path);
+    try {
+      final ref = FirebaseStorage.instance.ref().child('chatImages').child(imageFile.path);
+      await ref.putFile(file);
+      imageUrl = await ref.getDownloadURL();
 
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 업로드 실패: $e')));
-      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 업로드 실패: $e')));
     }
-    logger.e("imageUrl : $imageUrl");
-    if (imageUrl != null) {
-      setState(() {
-        chatService.sendImage("user", imageUrl);
-        _messages.add(
-            Message(sender: "user", text: "", image: imageUrl, timestamp: DateTime.now())
-        );
-        isLoading = false;
-      });
+      logger.e("imageUrl : $imageUrl");
+    setState(() {
+      chatService.sendImage("user", imageUrl);
+      _messages.add(
+          Message(sender: "user", text: "", image: imageUrl, timestamp: DateTime.now())
+      );
+      isLoading = false;
+    });
 
-      _scrollToBottom();
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 선택이 취소되었습니다.')));
-      setState(() {
-        isLoading = false;
-      });
+    _scrollToBottom();
     }
-  }
 
   Future<void> _pickImageWeb() async {
     setState(() {
@@ -346,7 +335,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
       _scrollToBottom();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이미지 선택이 취소되었습니다.')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('이미지 선택이 취소되었습니다.')));
       setState(() {
         isLoading = false;
       });
@@ -621,7 +610,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     return Center(
                       child: Padding(
                         padding: const EdgeInsets.all(8),
-                        child: Text(message.text!, style: const TextStyle(fontSize: 14, color: Colors.white)),
+                        child: Text(message.text, style: const TextStyle(fontSize: 14, color: Colors.white)),
                       ),
                     );
                   }
@@ -649,19 +638,18 @@ class _ChatScreenState extends State<ChatScreen> {
                                   style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                                 ),
                               ),
-                              if (message.text != null)
-                                Container(
-                                  margin: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 10),
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[300],
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    message.text!,
-                                    style: const TextStyle(color: Colors.black),
-                                  ),
+                              Container(
+                                margin: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 10),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
+                                child: Text(
+                                  message.text,
+                                  style: const TextStyle(color: Colors.black),
+                                ),
+                              ),
                               if (message.text.isEmpty && message.image != null)
                                 Container(
                                   margin: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 10),

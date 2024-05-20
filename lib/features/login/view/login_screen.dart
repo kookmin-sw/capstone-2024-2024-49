@@ -17,7 +17,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginPageState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  bool _isRememberMeChecked = false;
+  final bool _isRememberMeChecked = false;
 
   @override
   void dispose() {

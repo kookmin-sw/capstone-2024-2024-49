@@ -399,6 +399,9 @@ class _ConsultScreenState extends State<ConsultScreen> {
                                     Container(
                                       margin: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 10),
                                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                      constraints: const BoxConstraints(
+                                      maxWidth: 300,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: Colors.grey[300],
                                         borderRadius: BorderRadius.circular(12),

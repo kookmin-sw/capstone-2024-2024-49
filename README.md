@@ -1,7 +1,7 @@
 ## 📚 프로젝트 관련자료 
 
 - github pages: <a href=" https://github.com/kookmin-sw/capstone-2024-49"> https://github.com/kookmin-sw/capstone-2024-49 </a>
-- [2024-49조 포스터](https://github.com/kookmin-sw/capstone-2024-49/blob/master/docs/%EC%BA%A1%EC%8A%A4%ED%86%A4%EB%94%94%EC%9E%90%EC%9D%B8_2024_49%EC%A1%B0_%ED%8F%AC%EC%8A%A4%ED%84%B0.pptx)
+- [2024-49조 포스터](docs/2024_49조_최종포스터.jpg)
 
 ---
 

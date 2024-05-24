@@ -2,7 +2,7 @@
 
 - github pages: <a href=" https://github.com/kookmin-sw/capstone-2024-49"> https://github.com/kookmin-sw/capstone-2024-49 </a>
 - [2024-49조 포스터](docs/2024_49조_최종포스터.jpg)
-- [2024_49조_최종발표자료](https://drive.google.com/file/d/1hwtdRMIdezAk7nsLW88dPQ-uIUxunnfw/view?usp=sharing)
+- [2024_49조_최종발표자료](https://drive.google.com/file/d/13DIT_KRvGZe0oBi-LoOcqtgTEy8Sln9k/view?usp=sharing)
 - [2024-49조_수행결과보고서](https://drive.google.com/file/d/13FNi6Ys7sI9dsaBIgYEYmz-OH6KXVg3W/view?usp=sharing)
 
 ---

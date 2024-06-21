@@ -69,7 +69,7 @@
 
 ## 🛠 설치
 
-<p align="center"><img src = "https://github.com/kookmin-sw/capstone-2024-49/assets/55122068/8cca3cd7-1f50-432b-8af4-b7e979fe2022" width="500px" height="500px"></p>
+<p align="center"><img src = "https://github.com/kookmin-sw/capstone-2024-49/assets/55122068/855322df-4753-420b-86e7-68f04d5b0c9f" width="500px" height="500px"></p>
 
 
 ##### step 1:
